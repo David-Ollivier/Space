@@ -12,7 +12,7 @@ $orgName = Get-AutomationVariable -Name 'orgName'
 $projectName = Get-AutomationVariable -Name 'projectName'
 $location = Get-AutomationVariable -Name 'location'
 $adminUsername = Get-AutomationVariable -Name 'adminUsername'
-$domainName = Get-AutomationVariable -Name 'domainName'
+# $domainName = Get-AutomationVariable -Name 'domainName'
 $keyvaultName = Get-AutomationVariable -Name 'keyvaultName'
 $wvdAssetsStorage = Get-AutomationVariable -Name 'assetsName'
 $profilesStorageAccountName = Get-AutomationVariable -Name 'profilesName'
@@ -75,6 +75,8 @@ $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($AzCredenti
 $UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 $PasswordProfile.Password = $UnsecurePassword
 $PasswordProfile.ForceChangePasswordNextLogin = $False
+$domainName = $AzCredentials.userName
+$domainName = $domainName.split('@')[1]
 $domainJoinUPN = $adminUsername + '@' + $domainName
 
 New-AzureADUser -DisplayName $adminUsername -PasswordProfile $PasswordProfile -UserPrincipalName $domainJoinUPN -AccountEnabled $true -MailNickName $adminUsername
