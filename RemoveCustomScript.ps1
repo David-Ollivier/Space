@@ -29,7 +29,7 @@ Import-Module Az.Accounts -Global
 Import-Module Az.Resources -Global
 Import-Module Az.Compute -Global
 
-Get-AzureVMAvailableExtension -VM "spaceMsix"
-Remove-AzureVMCustomScriptExtension -VM "spaceMsix"
+Get-AzureVMAvailableExtension "spaceMsix"
+# Remove-AzureVMCustomScriptExtension -VM "spaceMsix"
 
 
