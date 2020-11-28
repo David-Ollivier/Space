@@ -1,6 +1,8 @@
 
+$fileURI = Get-AutomationVariable -Name 'fileURI'
+
 # Download files required for this script from github ARMRunbookScripts/static folder
-$FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
+$FileNames = "AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
 Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
