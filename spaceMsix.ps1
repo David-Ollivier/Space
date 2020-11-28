@@ -22,7 +22,7 @@
 $share = "fslogix"
 $azureshare = "stgeduwvdhostpool.file.core.windows.net"
 $azureshareuser = "Azure\stgeduwvdhostpool"
-$azuresharepass = "DsxzSTRkdECb98/qrApoTSlTqRlTZP9W65A/QkvtxjC1+k3BGWUwuUUKWWbY9uZ6joWo0gEXwf1dPrzN/anuIg=="
+$azuresharepass = ############
 
 
 # Manage Space Shares & Folders
@@ -56,10 +56,9 @@ $DesktopAppInstaller = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
 $DesktopAppInstallerPath =  "c:\space\spaceTools\" + $DesktopAppInstaller
 Invoke-WebRequest -Uri $DesktopAppInstallerURL -OutFile $DesktopAppInstallerPath
 set-location C:\space\spaceTools\msixmgr\
-Add-AppxPackage "C:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
+Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
+Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
 Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
@@ -76,7 +75,7 @@ Invoke-WebRequest -Uri $applisturi -OutFile C:\space\msix\applist.csv
       ####### [==_____> Space MSIX > 
         ##    /_/
 
-
+Start-Transcript c:\space\appTranscript.txt
 Set-Location -Path "c:\space\msix"
 $applist = import-csv applist.csv
 foreach($geturi in $applist.apps)
@@ -148,4 +147,7 @@ foreach($msixName in $allmsix)
         } | Export-Csv -Path C:\space\vhd\vhdInfo.csv -NoTypeInformation -Append
 }
 
-xcopy.exe C:\space\vhd\vhdInfo.csv $fullazureshare
+xcopy.exe c:\space\vhd\vhdInfo.csv $fullazureshare
+xcopy.exe c:\space\appTranscript.txt $fullazureshare
+
+
