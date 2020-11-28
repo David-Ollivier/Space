@@ -2,6 +2,8 @@
 $fileURI = Get-AutomationVariable -Name 'fileURI'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 
+write-output "Starting 45 minutes of sleep to allow for domain to start running, which typically takes 30-40 minutes."
+start-sleep -Seconds 120
 
 # Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "AzureModules.zip"
@@ -31,5 +33,5 @@ Import-Module Az.Accounts -Global
 Import-Module Az.Resources -Global
 Import-Module Az.Compute -Global
 
-Get-AzVMExtension -ResourceGroupName $ResourceGroupName -VMName spaceMsix | Remove-AzVMCustomScriptExtension
+Get-AzVMExtension -ResourceGroupName $ResourceGroupName -VMName spaceMsix | Remove-AzVMCustomScriptExtension -Force
 
