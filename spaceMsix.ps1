@@ -1,10 +1,10 @@
-Param(
-    $geturi,
-    $share,
-    $azureshare,
-    $azureshareuser,
-    $azuresharepass
-)
+# Param(
+#     $geturi,
+#     $share,
+#     $azureshare,
+#     $azureshareuser,
+#     $azuresharepass
+# )
 
         ##    \ \_____
       ####### [==_____> Space Application Containerization Program > 
