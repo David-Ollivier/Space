@@ -451,7 +451,7 @@
                         "https://raw.githubusercontent.com/SpaceWVD/Space/master/optimize.ps1"
                     ],
                     "timestamp": 123456789,
-                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File Hyper-V.ps1"
+                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File optimize.ps1"
                 }
             },
             "copy": {
