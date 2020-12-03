@@ -448,7 +448,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "https://raw.githubusercontent.com/SpaceWVD/Space/master/Hyper-V.ps1"
+                        "https://raw.githubusercontent.com/SpaceWVD/Space/master/optimize.ps1"
                     ],
                     "timestamp": 123456789,
                     "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File Hyper-V.ps1"
