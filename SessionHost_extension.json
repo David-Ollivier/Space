@@ -2,6 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "storageaccount": {
+            "type": "String",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located."
+            }
+        },
+        "storagepass": {
+            "type": "String",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located."
+            }
+        },
         "artifactsLocation": {
             "defaultValue": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration.zip",
             "type": "String",
@@ -448,10 +460,10 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "https://raw.githubusercontent.com/SpaceWVD/Space/master/optimize.ps1"
+                        "https://raw.githubusercontent.com/SpaceWVD/Space/master/CustomizeSpaceShip.ps1"
                     ],
                     "timestamp": 123456789,
-                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File optimize.ps1"
+                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File CustomizeSpaceShip.ps1 -storage ', parameters('storageaccount'),' -storagepass ', parameters('storagepass'))]"
                 }
             },
             "copy": {
