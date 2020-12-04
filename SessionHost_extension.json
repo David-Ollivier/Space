@@ -254,6 +254,8 @@
         }
     },
     "variables": {
+        "storageaccount": "parameters('storageaccount')",
+        "storagepass": "parameters('storagepass')",
         "existingDomainUsername": "[first(split(parameters('administratorAccountUsername'), '@'))]",
         "domain": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
         "storageAccountType": "[parameters('rdshVMDiskType')]",
@@ -463,7 +465,7 @@
                         "https://raw.githubusercontent.com/SpaceWVD/Space/master/CustomizeSpaceShip.ps1"
                     ],
                     "timestamp": 123456789,
-                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File CustomizeSpaceShip.ps1 -storage ', parameters('storageaccount'),' -storagepass ', parameters('storagepass'))]"
+                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File CustomizeSpaceShip.ps1 -storage ', variables('storageaccount'),' -storagepass ', variables('storagepass'))]"
                 }
             },
             "copy": {
