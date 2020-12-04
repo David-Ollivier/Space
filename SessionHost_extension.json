@@ -5,13 +5,13 @@
         "storageaccount": {
             "type": "String",
             "metadata": {
-                "description": "The base URI where artifacts required by this template are located."
+                "description": ""
             }
         },
         "storagepass": {
-            "type": "String",
+            "type": "SecureString",
             "metadata": {
-                "description": "The base URI where artifacts required by this template are located."
+                "description": ""
             }
         },
         "artifactsLocation": {

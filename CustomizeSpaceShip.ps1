@@ -7,7 +7,7 @@ param[
 
 
 New-Item -Path C:\ -Name Reports -ItemType Directory -ErrorAction SilentlyContinue
-Start-Transcript -path c:\Reports\Retranscriptions.csv
+Start-Transcript -path c:\Reports\Retranscriptions.txt
 
 
 
@@ -43,11 +43,16 @@ REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v SizeInMBs /T REG_DWORD /D 30000 /f
 REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v IsDynamic /T REG_DWORD /D 1 /f
 REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VolumeType /T REG_SZ /D "vhdx" /f
 REG ADD "HKLM\SOFTWARE\FSLogix\Logging" /v LogFileKeepingPeriod /T REG_DWORD /D 7 /f
-REG ADD HKLM\SOFTWARE\FSlogix\Profiles /v VHDLocations /T REG_MULTI_SZ /D \\$storage\\fslogix\\%username%\\VHD /f
-New-Item -Path C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\ -ItemType Directory -Force
+REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VHDLocations /T REG_MULTI_SZ /D \\$storage\fslogix\%username%\VHD /f
+
+New-Item -Path C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\ -ItemType Directory -Force
 $storageuser = $storage.split('.')[0]
-$storagescript = "cmdkey /add:$storageuser.file.core.windows.net /user:Azure\\$storageuser /pass:$storagepass"
-Set-Content C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\start.ps1 $storagescript
+$storagescript = "cmdkey /add:$storageuser.file.core.windows.net /user:Azure\$storageuser /pass:$storagepass"
+Set-Content C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\start.ps1 $storagescript
+$TaskAction1 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\start.ps1"
+$TaskTrigger = New-ScheduledTaskTrigger -AtStartup
+$TaskPrincipal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -Action $TaskAction1 -Trigger $TaskTrigger -Principal $TaskPrincipal -TaskName "SpaceShare"
 
 
 
@@ -58,7 +63,7 @@ Set-Content C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\start
 # if ($language -ne "en-us")
 # {
 #     $fullazureshare = '\\' + $storage + '\' + "msix"
-#     cmd.exe /C "cmdkey /add:$storage /user:$storageuser /pass:$storagepass"
+#     cmd.exe /C "cmdkey /add:$storage /user:Azure\$storageuser /pass:$storagepass"
 #     New-PSDrive -Name Z -PSProvider FileSystem -Root $fullazureshare
 
 #     [string]$LIPContent = "z:\language\"
@@ -109,33 +114,23 @@ Add-MpPreference -ExclusionPath "%ProgramFiles%\\FSLogix\\Apps\\frxsvc.exe"
 Add-MpPreference -ExclusionExtension "%ProgramFiles%\\FSLogix\\Apps\\frxdrv.sys"
 Add-MpPreference -ExclusionExtension "%ProgramFiles%\\FSLogix\\Apps\\frxdrvvt.sys"
 Add-MpPreference -ExclusionExtension "%ProgramFiles%\\FSLogix\\Apps\\frxccd.sys"
-Add-MpPreference -ExclusionExtension "%TEMP%*.VHD"
 Add-MpPreference -ExclusionExtension "%TEMP%*.VHDX"
-Add-MpPreference -ExclusionExtension "%Windir%\TEMP*.VHD"
 Add-MpPreference -ExclusionExtension "%Windir%\TEMP*.VHDX"
 Add-MpPreference -ExclusionExtension "\\$storage\fslogix\*.VHDX"
 
 
-
-        ##    \ \_____
-      ####### [==_____> Remove Unresponding sessions >
-        ##    /_/
-
- 
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v "MaxDisconnectionTime" /t "REG_DWORD" /d 300000 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v "MaxIdleTime" /t "REG_DWORD" /d 300000 /f 
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /v "ShutdownReasonOn" /t "REG_DWORD" /d 0 /f 
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /v "ShutdownReasonUI" /t "REG_DWORD" /d 0 /f 
 
 
         ##    \ \_____
       ####### [==_____> Micro Soft Flying Recommandations >
         ##    /_/
 
-
-Get-AppxPackage *Microsoft.WindowsStore* -AllUsers | Remove-AppxPackage
-Get-AppxPackage Microsoft.549981C3F5F10 -AllUsers | Remove-AppxPackage
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v "MaxDisconnectionTime" /t "REG_DWORD" /d 300000 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v "MaxIdleTime" /t "REG_DWORD" /d 300000 /f 
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /v "ShutdownReasonOn" /t "REG_DWORD" /d 0 /f 
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /v "ShutdownReasonUI" /t "REG_DWORD" /d 0 /f 
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoDrives /t "REG_DWORD" /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v fEnableTimeZoneRedirection /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 3 /f
@@ -145,6 +140,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-T
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v MaxMonitors /t REG_DWORD /d 4 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v MaxXResolution /t REG_DWORD /d 5120 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v MaxYResolution /t REG_DWORD /d 2880 /f
+
 
 
         ##    \ \_____
@@ -303,19 +299,6 @@ Windows Registry Editor Version 5.00
 $reg | Out-file AppleKeyboard.reg
 regedit /s AppleKeyboard.reg
         
-        
-
-        ##    \ \_____
-      ####### [==_____> Updating SpaceShip System Program >
-        ##    /_/
-
-
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
-Install-module -Name PSWindowsUpdate -Force
-Import-module -Name PSWindowsUpdate
-Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
-
 
 
         ##    \ \_____
@@ -345,7 +328,7 @@ Write-Host "Clean up various directories"
     "$env:windir\\winsxs\\manifestcache",
     "$env:windir\\Temp",
     "$env:TEMP",
-    "c:\optimize",
+    "c:\Optimize",
     "c:\appleKeyboard"
 
 ) | ForEach-Object {
@@ -360,5 +343,21 @@ Write-Host "Clean up various directories"
     }
 }
 
+        
+
+        ##    \ \_____
+      ####### [==_____> Updating SpaceShip System Program >
+        ##    /_/
+
+
+
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
+Install-module -Name PSWindowsUpdate -Force
+Import-module -Name PSWindowsUpdate
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
 Stop-Transcript
-Restart-Computer -Force
+Start-Transcript -path c:\Reports\Retranscriptions2.txt
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -autoreboot
+
+
