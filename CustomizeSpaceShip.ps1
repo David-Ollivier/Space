@@ -1,9 +1,10 @@
-param[
-    $az_tenant_id
-    $storage
+param(
+    $az_tenant_id,
+    $storage,
     $storagepass
    # $language = fr-fr
-]
+   # Teams & OneDrive
+)
 
 
 New-Item -Path C:\ -Name Reports -ItemType Directory -ErrorAction SilentlyContinue
@@ -97,9 +98,8 @@ reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached 
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v CalendarSyncWindowSetting /t REG_DWORD /d 1 /f
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v CalendarSyncWindowSettingMonths  /t REG_DWORD /d 1 /f
 reg add "HKU\TempDefault\software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v 01 /t REG_DWORD /d 0 /f
-reg unload HKU\TempDefault
-reg add HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate /v hideupdatenotifications /t REG_DWORD /d 1 /f
-reg add HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate /v hideenabledisableupdates /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate" /v hideupdatenotifications /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate" /v hideenabledisableupdates /t REG_DWORD /d 1 /f
 
 
 
@@ -125,6 +125,59 @@ Add-MpPreference -ExclusionExtension "\\$storage\fslogix\*.VHDX"
       ####### [==_____> Micro Soft Flying Recommandations >
         ##    /_/
 
+
+$NoPDF = "HKCR:\.pdf"
+$NoProgids = "HKCR:\.pdf\OpenWithProgids"
+$NoWithList = "HKCR:\.pdf\OpenWithList" 
+If (!(Get-ItemProperty $NoPDF  NoOpenWith)) {
+    New-ItemProperty $NoPDF NoOpenWith 
+}        
+If (!(Get-ItemProperty $NoPDF  NoStaticDefaultVerb)) {
+    New-ItemProperty $NoPDF  NoStaticDefaultVerb 
+}        
+If (!(Get-ItemProperty $NoProgids  NoOpenWith)) {
+    New-ItemProperty $NoProgids  NoOpenWith 
+}        
+If (!(Get-ItemProperty $NoProgids  NoStaticDefaultVerb)) {
+    New-ItemProperty $NoProgids  NoStaticDefaultVerb 
+}        
+If (!(Get-ItemProperty $NoWithList  NoOpenWith)) {
+    New-ItemProperty $NoWithList  NoOpenWith
+}        
+If (!(Get-ItemProperty $NoWithList  NoStaticDefaultVerb)) {
+    New-ItemProperty $NoWithList  NoStaticDefaultVerb 
+}
+        
+$Edge = "HKCR:\AppXd4nrz8ff68srnhf9t5a8sbjyar1cr723_"
+If (Test-Path $Edge) {
+    Set-Item $Edge AppXd4nrz8ff68srnhf9t5a8sbjyar1cr723_ 
+}
+Write-Host "Disabling Background application access..."
+Get-ChildItem -Path "HKU\TempDefault\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Exclude "Microsoft.Windows.Cortana*" | ForEach-Object {
+  Set-ItemProperty -Path $_.PsPath -Name "Disabled" -Type DWord -Value 1
+  Set-ItemProperty -Path $_.PsPath -Name "DisabledByUser" -Type DWord -Value 1
+}
+
+  Write-Host "Disabling Cortana..."
+If (!(Test-Path "HKU\TempDefault\SOFTWARE\Microsoft\Personalization\Settings")) {
+  New-Item -Path "HKU\TempDefault\SOFTWARE\Microsoft\Personalization\Settings" -Force
+}
+Set-ItemProperty -Path "HKU\TempDefault\SOFTWARE\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0
+If (!(Test-Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization")) {
+  New-Item -Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization" -Force
+}
+Set-ItemProperty -Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 1
+Set-ItemProperty -Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 1
+If (!(Test-Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore")) {
+  New-Item -Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Force
+}
+Set-ItemProperty -Path "HKU\TempDefault\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0
+If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search")) {
+  New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Force
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "AllowCortana" -Type DWord -Value 0
+Set-ItemProperty -Path "HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name AppsUseLightTheme -Value 0
+
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v "MaxDisconnectionTime" /t "REG_DWORD" /d 300000 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v "MaxIdleTime" /t "REG_DWORD" /d 300000 /f 
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" /f
@@ -140,6 +193,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-T
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v MaxMonitors /t REG_DWORD /d 4 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v MaxXResolution /t REG_DWORD /d 5120 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v MaxYResolution /t REG_DWORD /d 2880 /f
+reg unload HKU\TempDefault
 
 
 
@@ -153,8 +207,13 @@ $Localfolder = "C:\appleKeyboard\"
 $appleURL = 'https://github.com/Altux/azure-devtestlab/blob/master/Artifacts/windows-AppleKeyboardLayout/AppleKeyboard.zip'
 $applezip = "AppleKeyboard.zip"
 Invoke-WebRequest -Uri $appleURL -OutFile "$Localfolder$applezip"
-Expand-Archive -LiteralPath "C:\appleKeyboard\AppleKeyboard.zip" -DestinationPath "$Localfolder" -Force -Verbose
-Set-Location -Path C:\appleKeyboard
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+function unzip {
+	param( [string]$ziparchive, [string]$extractpath )
+	[System.IO.Compression.ZipFile]::ExtractToDirectory( $ziparchive, $extractpath )
+}
+
+unzip "C:\appleKeyboard\AppleKeyboard.zip" "C:\windows\system32"
 
 Write-output "Merging Registry entry for the keyboards Layouts..."
 $Reg = @"
@@ -300,6 +359,21 @@ $reg | Out-file AppleKeyboard.reg
 regedit /s AppleKeyboard.reg
         
 
+        ##    \ \_____
+      ####### [==_____> Updating SpaceShip System Program >
+        ##    /_/
+
+
+
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
+Install-module -Name PSWindowsUpdate -Force
+Import-module -Name PSWindowsUpdate
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
+Set-MpPreference -DisableRealtimeMonitoring $false
+
+
 
         ##    \ \_____
       ####### [==_____> Communication Latency Optimizer Program >
@@ -312,8 +386,25 @@ $WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-O
 $WVDOptimizeInstaller = "Windows_10_VDI_Optimize-master.zip"
 Invoke-WebRequest -Uri $WVDOptimizeURL -OutFile "$Localpath$WVDOptimizeInstaller"
 Expand-Archive -LiteralPath "C:\Optimize\Windows_10_VDI_Optimize-master.zip" -DestinationPath "$Localpath" -Force
-Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
-.\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -verbose
+$TaskAction2 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Optimize\Virtual-Desktop-Optimization-Tool-master\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -WindowsMediaPlayer -AppxPackages -ScheduledTasks -DefaultUserSettings -Autologgers -Services -NetworkOptimizations -DiskCleanup"
+$TaskTrigger2 = New-ScheduledTaskTrigger -AtStartup
+$TaskPrincipa2 = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -Action $TaskAction2 -Trigger $TaskTrigger2 -Principal $TaskPrincipa2 -TaskName "Optimize"
+
+$task3 = @"
+start-sleep 300
+Unregister-ScheduledTask -TaskName Optimize -Confirm:$false
+Unregister-ScheduledTask -TaskName Reboot -Confirm:$false
+Remove-Item C:\Optimize -Recurse -Force
+Remove-Item "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1" -Force
+Restart-Computer -Force
+"@
+
+$task3 | Out-file C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1
+$TaskAction3 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1"
+$TaskTrigger3 = New-ScheduledTaskTrigger -AtStartup
+$TaskPrincipa3 = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -Action $TaskAction3 -Trigger $TaskTrigger3 -Principal $TaskPrincipa3 -TaskName "Reboot"
 
 
 
@@ -322,18 +413,15 @@ Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
         ##    /_/
 
  
-Write-Host "Clean up various directories"
 @(
     "$env:windir\\logs",
     "$env:windir\\winsxs\\manifestcache",
     "$env:windir\\Temp",
     "$env:TEMP",
-    "c:\Optimize",
     "c:\appleKeyboard"
 
 ) | ForEach-Object {
     if (Test-Path $_) {
-        Write-Host "Removing $_"
         try {
             Takeown /d Y /R /f $_
             Icacls $_ /GRANT:r administrators:F /T /c /q  2>&1 | Out-Null
@@ -343,21 +431,7 @@ Write-Host "Clean up various directories"
     }
 }
 
-        
-
-        ##    \ \_____
-      ####### [==_____> Updating SpaceShip System Program >
-        ##    /_/
-
-
-
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
-Install-module -Name PSWindowsUpdate -Force
-Import-module -Name PSWindowsUpdate
-Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
 Stop-Transcript
-Start-Transcript -path c:\Reports\Retranscriptions2.txt
-Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -autoreboot
+Restart-Computer -Force
 
 
