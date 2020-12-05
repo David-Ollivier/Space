@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageaccount": {
+        "storage": {
             "type": "String",
             "metadata": {
                 "description": ""
@@ -254,8 +254,8 @@
         }
     },
     "variables": {
-        "storageaccount": "parameters('storageaccount')",
-        "storagepass": "parameters('storagepass')",
+        "storage": "[parameters('storage')]",
+        "storagepass": "[parameters('storagepass')]",
         "existingDomainUsername": "[first(split(parameters('administratorAccountUsername'), '@'))]",
         "domain": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
         "storageAccountType": "[parameters('rdshVMDiskType')]",
@@ -465,7 +465,7 @@
                         "https://raw.githubusercontent.com/SpaceWVD/Space/master/CustomizeSpaceShip.ps1"
                     ],
                     "timestamp": 123456789,
-                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File CustomizeSpaceShip.ps1 -storage ', variables('storageaccount'),' -storagepass ', variables('storagepass'))]"
+                    "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File CustomizeSpaceShip.ps1 -storage ', variables('storage'),' -storagepass ', variables('storagepass'))]"
                 }
             },
             "copy": {

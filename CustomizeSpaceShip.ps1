@@ -48,12 +48,152 @@ REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VHDLocations /T REG_MULTI_SZ /D \\$s
 
 New-Item -Path C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\ -ItemType Directory -Force
 $storageuser = $storage.split('.')[0]
-$storagescript = "cmdkey /add:$storageuser.file.core.windows.net /user:Azure\$storageuser /pass:$storagepass"
-Set-Content C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\start.ps1 $storagescript
-$TaskAction1 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\start.ps1"
-$TaskTrigger = New-ScheduledTaskTrigger -AtStartup
-$TaskPrincipal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-Register-ScheduledTask -Action $TaskAction1 -Trigger $TaskTrigger -Principal $TaskPrincipal -TaskName "SpaceShare"
+$storagescript = "cmdkey /add:$storage /user:Azure\$storageuser /pass:$storagepass"
+Set-Content C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspaceshare.ps1 $storagescript
+# $TaskAction1 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspaceshare.ps1"
+# $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
+# $TaskPrincipal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+# Register-ScheduledTask -Action $TaskAction1 -Trigger $TaskTrigger -Principal $TaskPrincipal -TaskName "SpaceShare"
+
+
+
+        ##    \ \_____
+      ####### [==_____> Space MSIX Program Initialization >
+        ##    /_/
+
+
+$client = New-Object System.Net.WebClient
+$url = "https://download.sysinternals.com/files/PSTools.zip"
+$client.DownloadFile($url, "$PSScriptRoot\PSTools.zip")
+Expand-Archive -LiteralPath "$PSScriptRoot\PSTools.zip" -DestinationPath "C:\Windows\System32"
+
+& psexec /s cmd /accepteula
+& sc privs gpsvc SeManageVolumePrivilege/SeTcbPrivilege/SeTakeOwnershipPrivilege/SeIncreaseQuotaPrivilege/SeAssignPrimaryTokenPrivilege/SeSecurityPrivilege/SeChangeNotifyPrivilege/SeCreatePermanentPrivilege/SeShutdownPrivilege/SeLoadDriverPrivilege/SeRestorePrivilege/SeBackupPrivilege/SeCreatePagefilePrivilege
+
+reg load HKU\TempDefault C:\Users\Default\NTUSER.DAT
+
+$appreg = @"
+
+Windows Registry Editor Version 5.00
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup]
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="AppAttach Startup"
+"GPOName"="AppAttach Startup"
+"PSScriptOrder"=dword:00000001
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0\0]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\mountspaceshare.ps1"
+"Parameters"=""
+"IsPowershell"=dword:00000001
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0\1]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\AppAttach.ps1"
+"Parameters"="-ConfigFile \\\\$storage\\msix\\AppAttach.json -Mode VmStart"
+"IsPowershell"=dword:00000001
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup]
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="AppAttach Startup"
+"GPOName"="AppAttach Startup"
+"PSScriptOrder"=dword:00000001
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0\0]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\mountspaceshare.ps1"
+"Parameters"=""
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0\1]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\AppAttach.ps1"
+"Parameters"="-ConfigFile \\\\$storage\\msix\\AppAttach.json -Mode VmStart"
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown]
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="AppAttach Shutdown"
+"GPOName"="AppAttach Shutdown"
+"PSScriptOrder"=dword:00000001
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown\0\0]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Shutdown\\AppAttach.ps1"
+"Parameters"="-ConfigFile \\\\$storage\\msix\\AppAttach.json -Mode VmShutdown"
+"IsPowershell"=dword:00000001
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown]
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
+"DisplayName"="AppAttach Shutdown"
+"GPOName"="AppAttach Shutdown"
+"PSScriptOrder"=dword:00000001
+ 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown\0\0]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Shutdown\\AppAttach.ps1"
+"Parameters"="-ConfigFile \\\\$storage\\msix\\AppAttach.json -Mode VmShutdown"
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logon]
+ 
+[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logon\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\User"
+"DisplayName"="AppAttach User Startup"
+"GPOName"="AppAttach User Startup"
+"PSScriptOrder"=dword:00000001
+
+[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logon\0\0]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\User\\Scripts\\Startup\\AppAttach.ps1"
+"Parameters"="-ConfigFile \\\\$storage\\msix\\AppAttach.json -Mode UserLogon"
+"IsPowershell"=dword:00000001
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logoff]
+ 
+[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logoff\0]
+"GPO-ID"="LocalGPO"
+"SOM-ID"="Local"
+"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\User"
+"DisplayName"="AppAttach User Shutdown"
+"GPOName"="AppAttach User Shutdown"
+"PSScriptOrder"=dword:00000001
+
+[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logoff\0\0]
+"Script"="C:\\Windows\\System32\\GroupPolicy\\User\\Scripts\\Startup\\AppAttach.ps1"
+"Parameters"="-ConfigFile \\\\$storage\\msix\\AppAttach.json -Mode UserLogoff"
+"IsPowershell"=dword:00000001
+"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+
+"@
+
+$appreg | Out-file AppAttach.reg
+regedit /s AppAttach.reg
+
+$gpt = @"
+[General]
+gPCMachineExtensionNames=[{35378EAC-683F-11D2-A89A-00C04FBBCFA2}{DF3DC19F-F72C-4030-940E-4C2A65A6B612}][{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B6664F-4972-11D1-A7CA-0000F87571E3}]
+Version=327692
+gPCUserExtensionNames=[{35378EAC-683F-11D2-A89A-00C04FBBCFA2}{DF3DC19F-F72C-4030-940E-4C2A65A6B612}][{42B5FAAE-6536-11D2-AE5A-0000F87571E3}{40B66650-4972-11D1-A7CA-0000F87571E3}]
+"@ 
+
+$gpt | Out-file C:\Windows\System32\GroupPolicy\GPT.INI
 
 
 
@@ -91,8 +231,8 @@ Register-ScheduledTask -Action $TaskAction1 -Trigger $TaskTrigger -Principal $Ta
         ##    /_/
 
   
-reg load HKU\TempDefault C:\Users\Default\NTUSER.DAT
-reg add HKU\TempDefault\SOFTWARE\Policies\Microsoft\office\16.0\common /v InsiderSlabBehavior /t REG_DWORD /d 2 /f
+
+reg add "HKU\TempDefault\SOFTWARE\Policies\Microsoft\office\16.0\common" /v InsiderSlabBehavior /t REG_DWORD /d 2 /f
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v enable /t REG_DWORD /d 1 /f
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v syncwindowsetting /t REG_DWORD /d 1 /f
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v CalendarSyncWindowSetting /t REG_DWORD /d 1 /f
@@ -108,12 +248,12 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate" /v hi
         ##    /_/
 
  
-Add-MpPreference -ExclusionPath "%ProgramFiles%\\FSLogix\\Apps\\frxccd.exe"
-Add-MpPreference -ExclusionPath "%ProgramFiles%\\FSLogix\\Apps\\frxccds.exe"
-Add-MpPreference -ExclusionPath "%ProgramFiles%\\FSLogix\\Apps\\frxsvc.exe"
-Add-MpPreference -ExclusionExtension "%ProgramFiles%\\FSLogix\\Apps\\frxdrv.sys"
-Add-MpPreference -ExclusionExtension "%ProgramFiles%\\FSLogix\\Apps\\frxdrvvt.sys"
-Add-MpPreference -ExclusionExtension "%ProgramFiles%\\FSLogix\\Apps\\frxccd.sys"
+Add-MpPreference -ExclusionPath "%ProgramFiles%\FSLogix\Apps\frxccd.exe"
+Add-MpPreference -ExclusionPath "%ProgramFiles%\FSLogix\Apps\frxccds.exe"
+Add-MpPreference -ExclusionPath "%ProgramFiles%\FSLogix\Apps\frxsvc.exe"
+Add-MpPreference -ExclusionExtension "%ProgramFiles%\FSLogix\Apps\frxdrv.sys"
+Add-MpPreference -ExclusionExtension "%ProgramFiles%\FSLogix\Apps\frxdrvvt.sys"
+Add-MpPreference -ExclusionExtension "%ProgramFiles%\FSLogix\Apps\frxccd.sys"
 Add-MpPreference -ExclusionExtension "%TEMP%*.VHDX"
 Add-MpPreference -ExclusionExtension "%Windir%\TEMP*.VHDX"
 Add-MpPreference -ExclusionExtension "\\$storage\fslogix\*.VHDX"
@@ -216,7 +356,7 @@ function unzip {
 unzip "C:\appleKeyboard\AppleKeyboard.zip" "C:\windows\system32"
 
 Write-output "Merging Registry entry for the keyboards Layouts..."
-$Reg = @"
+$keyreg = @"
 Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layouts]
@@ -355,9 +495,10 @@ Windows Registry Editor Version 5.00
 
 "@
 
-$reg | Out-file AppleKeyboard.reg
+$keyreg | Out-file AppleKeyboard.reg
 regedit /s AppleKeyboard.reg
         
+
 
         ##    \ \_____
       ####### [==_____> Updating SpaceShip System Program >
@@ -371,7 +512,6 @@ Install-module -Name PSWindowsUpdate -Force
 Import-module -Name PSWindowsUpdate
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
-Set-MpPreference -DisableRealtimeMonitoring $false
 
 
 
@@ -396,6 +536,7 @@ start-sleep 300
 Unregister-ScheduledTask -TaskName Optimize -Confirm:$false
 Unregister-ScheduledTask -TaskName Reboot -Confirm:$false
 Remove-Item C:\Optimize -Recurse -Force
+
 Remove-Item "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1" -Force
 Restart-Computer -Force
 "@
@@ -418,7 +559,10 @@ Register-ScheduledTask -Action $TaskAction3 -Trigger $TaskTrigger3 -Principal $T
     "$env:windir\\winsxs\\manifestcache",
     "$env:windir\\Temp",
     "$env:TEMP",
-    "c:\appleKeyboard"
+    "c:\appleKeyboard",
+    "$PSScriptRoot\PSTools.zip",
+    "$PSScriptRoot\fslogix.zip",
+    "$PSScriptRoot\fslogix"
 
 ) | ForEach-Object {
     if (Test-Path $_) {
@@ -431,7 +575,6 @@ Register-ScheduledTask -Action $TaskAction3 -Trigger $TaskTrigger3 -Principal $T
     }
 }
 
+Set-MpPreference -DisableRealtimeMonitoring $false
 Stop-Transcript
 Restart-Computer -Force
-
-
