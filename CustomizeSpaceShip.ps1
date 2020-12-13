@@ -84,10 +84,6 @@ $client = New-Object System.Net.WebClient
 $url = "https://raw.githubusercontent.com/SpaceWVD/Space/master/AppAttach.ps1"
 $client.DownloadFile($url, "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttach.ps1")
 
-$client = New-Object System.Net.WebClient
-$url = "https://raw.githubusercontent.com/SpaceWVD/Space/master/AppAttachVmStart.ps1"
-$client.DownloadFile($url, "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttachVmStart.ps1")
-
 
 $psscriptsmachine = @"
  
