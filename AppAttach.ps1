@@ -8,6 +8,13 @@ param(
 	[string] $Mode
 )
 
+# Reporting
+$time = Get-Date -Format "MM.dd.hh.mm.ss"
+$file = $time + '.txt'
+$filePath = 'C:\TEMP\AppAttach-' + $Mode + $file
+Start-Transcript $filePath
+
+
 #Has to apply on the master image (in system context, with a batch):   sc privs gpsvc SeManageVolumePrivilege/SeTcbPrivilege/SeTakeOwnershipPrivilege/SeIncreaseQuotaPrivilege/SeAssignPrimaryTokenPrivilege/SeSecurityPrivilege/SeChangeNotifyPrivilege/SeCreatePermanentPrivilege/SeShutdownPrivilege/SeLoadDriverPrivilege/SeRestorePrivilege/SeBackupPrivilege/SeCreatePagefilePrivilege
 
 [Windows.Management.Deployment.PackageManager,Windows.Management.Deployment,ContentType=WindowsRuntime] | Out-Null
@@ -38,38 +45,6 @@ Class Apps
     [App[]]$apps
 }
 
-
-if ($mode -eq "ShowDemoJson")
-{
-	# display a json configuration as template
-	$apps = New-Object Apps
-	$app1 = New-Object App
-	$app2 = New-Object App
-	$sessionTarget1= New-Object SessionTarget
-	$sessionTarget2= New-Object SessionTarget
-
-	$sessionTarget1.hostPools=@("MSIX-Builder")
-	$sessionTarget1.userGroups=@("SW_WVD_All","SW_WVD_NotePadPP")
-	$app1.packageName="notepadpp_7.8.1.0_x64__cqx7y23m1rjgy" 
-	$app1.vhdSrc="\\ads01\Configuration\WVD\MSIX\NotepadPP.vhd"
-	$app1.volumeGuid="9c371391-0000-0000-0000-010000000000"
-	$app1.parentFolder = "MSIX-Apps"
-	$app1.SessionTarget=$sessionTarget1
-
-	$sessionTarget2.hostPools=@("MSIX-Builder")
-	$sessionTarget2.userGroups=@("SW_WVD_All","SW_WVD_FileZilla")
-	$app2.packageName="filezilla_3.45.1.0_x64__cqx7y23m1rjgy" 
-	$app2.vhdSrc="\\ads01\Configuration\WVD\MSIX\FileZilla.vhd"
-	$app2.volumeGuid="2ac99dec-0000-0000-0000-010000000000"
-	$app2.parentFolder = "MSIX-Apps"
-	$app2.SessionTarget=$sessionTarget2
-
-	$apps.apps+=$app1
-	$apps.apps+=$app2
-
-	$apps| Convertto-json -Depth 10
-} else 
-{
 	LogWriter("----------------------------------------------------------------")
     LogWriter("Working with application assignment: "+$mode)
 	$n=20
@@ -197,12 +172,14 @@ if ($mode -eq "ShowDemoJson")
                     if (($groups| where {$_.SamAccountName -eq $userGroup}).count -ne 0) {
                         $isInGroup=$true
                     }
-                }
+				}
                 if ($isInGroup) {
                     LogWriter("Try to register app for user")
 					try {
 						$packageName = $app.packageName 
+						LogWriter("$packageName")
 						$path = $packageStorePath + "\" + $packageName + "\AppxManifest.xml"
+						LogWriter("$path")
 						if (Test-Path $path) {
 							Add-AppxPackage -Path $path -DisableDevelopmentMode -Register -ErrorAction Stop
 						} else {
@@ -215,4 +192,5 @@ if ($mode -eq "ShowDemoJson")
             }
 		}
 	}	
-}
+
+Stop-Transcript
