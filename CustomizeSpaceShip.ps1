@@ -53,11 +53,13 @@ REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VHDLocations /T REG_MULTI_SZ /D \\$s
 
 
 New-Item -Path c:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\ -ItemType Directory -Force
+New-Item -Path c:\Windows\System32\GroupPolicy\Machine\Scripts\Shutdown\ -ItemType Directory -Force
 $storageuser = $storage.split('.')[0]
 $storagescript = "cmdkey /add:$storage /user:Azure\$storageuser /pass:$storagepass"
 Set-Content c:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspaceshare.ps1 $storagescript
 
-# New-Item -Path C:\Windows\System32\GroupPolicy\User\Scripts\Logon\ -ItemType Directory -Force
+New-Item -Path C:\Windows\System32\GroupPolicy\User\Scripts\Logon\ -ItemType Directory -Force
+New-Item -Path C:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ -ItemType Directory -Force
 # $storageapp = $storage.split('.')[0]
 # $storagescript = "cmdkey /add:$storage /user:Azure\$storageapp /pass:$storagepass"
 # Set-Content C:\Windows\System32\GroupPolicy\User\Scripts\Logon\mountspaceshare.ps1 $storagescript
@@ -75,7 +77,7 @@ $pfxpass = $PlainTextPass | ConvertTo-SecureString -AsPlainText -Force
 $client = New-Object System.Net.WebClient
 $url = "https://raw.githubusercontent.com/SpaceWVD/Space/master/cert.pfx"
 $client.DownloadFile($url, "C:\temp\cert.pfx")
-Import-PfxCertificate -FilePath C:\temp\cert.pfx -CertStoreLocation Cert:\LocalMachine\TrustedPublisher -Password $pfxpass
+Import-PfxCertificate -FilePath C:\temp\cert.pfx -CertStoreLocation Cert:\LocalMachine\TrustedPeople -Password $pfxpass
 
 $client = New-Object System.Net.WebClient
 $url = "https://download.sysinternals.com/files/PSTools.zip"
@@ -491,20 +493,6 @@ regedit /s c:\temp\appleKeyboard\AppleKeyboard.reg
 
 
 
-        ##    \ \_____
-      ####### [==_____> Updating SpaceShip System Program >
-        ##    /_/
-
-
-
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
-Install-module -Name PSWindowsUpdate -Force
-Import-module -Name PSWindowsUpdate
-Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
-Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
-
-
 
         ##    \ \_____
       ####### [==_____> Communication Latency Optimizer Program >
@@ -574,5 +562,21 @@ Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
  
 
 Set-MpPreference -DisableRealtimeMonitoring $false
+
+# Restart-Computer -Force
+
+
+
+        ##    \ \_____
+      ####### [==_____> Updating SpaceShip System Program >
+        ##    /_/
+
+
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
+Install-module -Name PSWindowsUpdate -Force
+Import-module -Name PSWindowsUpdate
+# Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -AutoReboot
+cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
 Stop-Transcript
-Restart-Computer -Force
