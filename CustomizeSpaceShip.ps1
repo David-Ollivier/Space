@@ -25,6 +25,7 @@ Set-MpPreference -DisableRealtimeMonitoring $true
         ##    /_/
 
 
+New-Item -Path c:\temp -ItemType Directory -Force
 $client = New-Object System.Net.WebClient
 $url = "https://aka.ms/fslogix_download"
 $client.DownloadFile($url, "c:\temp\fslogix.zip")
@@ -232,7 +233,7 @@ Windows Registry Editor Version 5.00
 "ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
 
 "@
-New-Item -Path c:\temp -ItemType Directory -Force
+
 $appreg | Out-file c:\temp\AppAttach.reg -Force
 reg import c:\temp\AppAttach.reg
 
