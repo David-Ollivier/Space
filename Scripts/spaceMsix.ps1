@@ -1,9 +1,9 @@
-# Param(
-#     $storage,
-#     $storagepass,
-#     $sharename,
-#     $projectname
-# )
+Param(
+    $storage,
+    $storagepass,
+    $sharename,
+    $projectname
+)
 
         ##    \ \_____
       ####### [==_____> Space Applications Containerization Program > 
@@ -23,6 +23,11 @@ $spacefolder = "c:\space\"
 new-item -path "c:\space\msix" -ItemType Directory
 new-item -path "c:\space\vhd" -ItemType Directory
 Start-Transcript "c:\space\appTranscript.txt"
+
+write-output $storage
+write-output $storagepass
+write-output $sharename
+write-output $projectname
 
 $storageuser = $storage.split('.')[0]
 $storageuser = "Azure\" + $storageuser
