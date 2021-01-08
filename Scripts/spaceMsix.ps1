@@ -44,6 +44,13 @@ Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath $spacefol
 
 
 # Flying Certificate
+mkdir c:\space\cert\
+New-SelfSignedCertificate -Type Custom -Subject "CN=Space" -KeyUsage DigitalSignature -FriendlyName "Space" -CertStoreLocation "Cert:\CurrentUser\my" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}") -NotAfter (Get-Date).AddMonths(242)
+$password = ConvertTo-SecureString -String space -Force -AsPlainText
+Set-Location Cert:\CurrentUser\my
+$certThmb = ( Get-ChildItem | Where-Object{$_.Subject -eq 'CN=Space'} ).Thumbprint
+Export-PfxCertificate -cert "Cert:\CurrentUser\my\$certThmb" -FilePath c:\space\cert\cert.pfx -Password $password
+
 $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("c:\space\cert\cert.pfx","space")
 $rootStore = Get-Item cert:\LocalMachine\Root
 $rootStore.Open("ReadWrite")
