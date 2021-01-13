@@ -63,7 +63,6 @@ $rootStore.Open("ReadWrite")
 $rootStore.Add($cert)
 $rootStore.Close()
 
-
 # Prepare Space Packets Managers
 $DesktopAppInstallerURL = "https://github.com/microsoft/winget-cli/releases/download/v0.2.2941-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
 $DesktopAppInstaller = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
@@ -74,10 +73,11 @@ $user = "spaceMsix"
 $pwd = ConvertTo-SecureString "Tralala123!" -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential($user,$pwd)
 
-Start-Process powershell.exe -Credential $cred -ArgumentList 'Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"'
-Start-Process powershell.exe -Credential $cred -ArgumentList 'Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"'
-Start-Process powershell.exe -Credential $cred -ArgumentList 'Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"'
-Start-Process powershell.exe -Credential $cred -ArgumentList 'Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"'
+Set-Location c:\space\spaceTools\
+Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
+Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
+Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"
 
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
