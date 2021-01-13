@@ -73,11 +73,23 @@ $user = "spaceMsix"
 $pwd = ConvertTo-SecureString "Tralala123!" -AsPlainText -Force
 $cred = New-Object System.Management.Automation.PSCredential($user,$pwd)
 
-Set-Location c:\space\spaceTools\
+$appx = @'
 Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
 Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
 Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
 Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"
+'@
+
+Set-Location c:\space\
+
+$appx | Out-File Install-SpacePacketsManagers.ps1
+Write-Output "try install same user"
+.\Install-SpacePacketsManagers.ps1
+
+Write-Output "try install local user"
+Invoke-Command -Credential $cred -FilePath "c:\space\Install-SpacePacketsManagers.ps1"
+
+
 
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
