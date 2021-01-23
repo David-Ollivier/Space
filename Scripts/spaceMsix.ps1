@@ -2,7 +2,15 @@ Param(
     $storage,
     $storagepass,
     $sharename,
-    $projectname
+    $projectname,
+    $app1,
+    $app2,
+    $app3,
+    $app4,
+    $app5,
+    $app6,
+    $app7,
+    $app8 
 )
 
         ##    \ \_____
@@ -21,12 +29,9 @@ Param(
 # Manage Space Share & Folders
 new-item -path "c:\space\msix" -ItemType Directory
 new-item -path "c:\space\vhd" -ItemType Directory
+new-item -path "c:\space\cert" -ItemType Directory
 Start-Transcript "c:\space\appTranscript.txt"
 
-write-output $storage
-write-output $storagepass
-write-output $sharename
-write-output $projectname
 
 $storageuser = $storage.split('.')[0]
 $storageuser = "Azure\" + $storageuser
@@ -37,20 +42,21 @@ New-PSDrive -Name Z -PSProvider FileSystem -Root $fullazureshare
 
 # spaceTools
 $spacefolder = "c:\space\"
-$toolsURL = 'https://spacevhd.blob.core.windows.net/rocket/spaceTools.zip'
+$toolsURL = 'https://github.com/SpaceWVD/Space/raw/master/Files/spaceTools.zip'
 $toolsZip = "spaceTools.zip"
 Invoke-WebRequest -Uri $toolsURL -OutFile "$spacefolder$toolsZip"
 Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath $spacefolder -Force -Verbose
 
 
 # Flying Certificate
-$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("c:\space\spaceTools\cert\cert.pfx","space")
-$rootStore = Get-Item cert:\LocalMachine\Root
-$rootStore.Open("ReadWrite")
-$rootStore.Add($cert)
-$rootStore.Close()
 
-mkdir c:\space\cert\
+# $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("c:\space\spaceTools\cert\cert.pfx","space")
+# $rootStore = Get-Item cert:\LocalMachine\Root
+# $rootStore.Open("ReadWrite")
+# $rootStore.Add($cert)
+# $rootStore.Close()
+
+
 New-SelfSignedCertificate -Type Custom -Subject "CN=$projectname" -KeyUsage DigitalSignature -FriendlyName "$projectname" -CertStoreLocation "Cert:\CurrentUser\my" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}") -NotAfter (Get-Date).AddMonths(242)
 $password = ConvertTo-SecureString -String space -Force -AsPlainText
 Set-Location Cert:\CurrentUser\my
@@ -63,52 +69,37 @@ $rootStore.Open("ReadWrite")
 $rootStore.Add($cert)
 $rootStore.Close()
 
+
 # Prepare Space Packets Managers
-$DesktopAppInstallerURL = "https://github.com/microsoft/winget-cli/releases/download/v0.2.2941-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-$DesktopAppInstaller = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-$DesktopAppInstallerPath =  "c:\space\spaceTools\" + $DesktopAppInstaller
-Invoke-WebRequest -Uri $DesktopAppInstallerURL -OutFile $DesktopAppInstallerPath
-
-$user = "spaceMsix"
-$pwd = ConvertTo-SecureString "Tralala123!" -AsPlainText -Force
-$cred = New-Object System.Management.Automation.PSCredential($user,$pwd)
-
-$appx = @'
-Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
-Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
-Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"
-'@
-
-Set-Location c:\space\
-
-$appx | Out-File Install-SpacePacketsManagers.ps1
-Write-Output "try install same user"
-.\Install-SpacePacketsManagers.ps1
-
-Write-Output "try install local user"
-Invoke-Command -Credential $cred -FilePath "c:\space\Install-SpacePacketsManagers.ps1"
+# $DesktopAppInstallerURL = "https://github.com/microsoft/winget-cli/releases/download/v0.2.2941-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+# $DesktopAppInstaller = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+# $DesktopAppInstallerPath =  "c:\space\spaceTools\" + $DesktopAppInstaller
+# Invoke-WebRequest -Uri $DesktopAppInstallerURL -OutFile $DesktopAppInstallerPath
+# Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
+# Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
+# Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
+# Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"
 
 
-
+# Install Flying Packets Manager
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
 choco feature disable -n checksumFiles
-
-# Getting Space Apps
-$applisturi = 'https://spacevhd.blob.core.windows.net/rocket/' + $projectname + '-applist.csv'
-Invoke-WebRequest -Uri $applisturi -OutFile "c:\space\msix\applist.csv"
 
 
 
         ##    \ \_____
       ####### [==_____> Space MSIX > 
         ##    /_/
-
+        
 
 Set-Location -Path "c:\space\msix"
-$applist = import-csv "applist.csv"
-foreach($app in $applist.apps)
+$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where { -not [string]::IsNullOrEmpty($_) }
+
+write-output $applist
+write-output $applist.Count
+
+foreach($app in $applist)
 {
     $separators = (" ",".")
     $appname = $app.split($separators)[2]
@@ -134,7 +125,7 @@ foreach($app in $applist.apps)
     </PackageInformation>
     </MsixPackagingToolTemplate>' > manifest.xml
 
-    MsixPackagingTool.exe create-package --template manifest.xml -v
+    c:\space\spaceTools\MsixPackagingTool\MsixPackagingTool.exe create-package --template manifest.xml -v
 }
 
 
