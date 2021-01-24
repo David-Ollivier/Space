@@ -166,7 +166,7 @@ foreach($msixName in $allmsix)
 # Gettings vhd's informations
     $vhdSrc="C:\space\vhd\$vhdName"
     $packageName = (Get-ChildItem -path $fullvhdappfolder).name
-    $parentFolder = "\" + $parentFolder + "\"
+    $parentFolderDir = "\" + $parentFolder + "\"
     $volumeGuid = (((get-volume -DriveLetter $driveletter).UniqueId).split('{')[1]).split('}')[0]
 
     Dismount-DiskImage -Imagepath $vhdSrc
@@ -177,7 +177,7 @@ foreach($msixName in $allmsix)
         "vhdSrc": "\\\\$storage\\$sharename\\$parentFolder.vhd",
         "volumeGuid": "$volumeGuid",
         "packageName": "$packageName",
-        "parentFolder": "$parentFolder",
+        "parentFolder": "$parentFolderDir",
         "sessionTarget": {
             "hostPools": [
                 "Space-Pool"
@@ -195,7 +195,7 @@ $JsonData.apps += $JsonDataAdd
 $JsonData > "c:\space\vhd\AppAttach.json"
 
 xcopy.exe "c:\space\vhd\AppAttach.json" $fullazureshare
-xcopy.exe "c:\space\spaceTools\cert\cert.pfx" $fullazureshare
+xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
 
 Stop-Transcript
 xcopy.exe "c:\space\appTranscript.txt" $fullazureshare
