@@ -30,6 +30,7 @@ Param(
 new-item -path "c:\space\msix" -ItemType Directory
 new-item -path "c:\space\vhd" -ItemType Directory
 new-item -path "c:\space\cert" -ItemType Directory
+new-item -path "c:\space\spaceTools" -ItemType Directory
 Start-Transcript "c:\space\appTranscript.txt"
 
 
@@ -45,7 +46,7 @@ $spacefolder = "c:\space\"
 $toolsURL = 'https://github.com/SpaceWVD/Space/raw/master/Files/spaceTools.zip'
 $toolsZip = "spaceTools.zip"
 Invoke-WebRequest -Uri $toolsURL -OutFile "$spacefolder$toolsZip"
-Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath $spacefolder -Force -Verbose
+Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath "c:\space\spaceTools" -Force -Verbose
 
 
 # Flying Certificate
@@ -96,6 +97,7 @@ choco feature disable -n checksumFiles
 Set-Location -Path "c:\space\msix"
 $applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where { -not [string]::IsNullOrEmpty($_) }
 
+
 foreach($app in $applist)
 {
     $separators = (" ",".")
@@ -122,7 +124,7 @@ foreach($app in $applist)
     </PackageInformation>
     </MsixPackagingToolTemplate>' > manifest.xml
 
-    c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template manifest.xml -v
+    c:\space\spaceTools\MsixPackagingTool\MsixPackagingTool.exe create-package --template manifest.xml -v
 }
 
 
