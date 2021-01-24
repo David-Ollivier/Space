@@ -14,19 +14,6 @@ Param(
     $app8 
 )
 
-# $projectname = "space"
-# $storage = "spaceshare0124t040533z.file.core.windows.net" 
-# $storagepass = "83dqltwBa3yXbU3z8IwGErcNl7ouRW6TyEtKqbLMuYLSTV02EQLlYPEQTdBl/tD2wfI0Yne7IJllA/HT38mEZQ==" 
-# $sharename = "msix" 
-# $app1 = "choco install googlechrome" 
-# $app2 = "choco install adobereader" 
-# $app3 = "choco install firefox" 
-# $app4 = "choco install notepadplusplus.install" 
-# $app5 = "choco install python3" 
-# $app6 = "choco install foxitreader" 
-# $app7 = "none" 
-# $app8 = "none"
-
 # Hyper Space
 DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V /NoRestart
 
