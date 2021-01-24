@@ -95,8 +95,7 @@ choco feature disable -n checksumFiles
         
 
 Set-Location -Path "c:\space\msix"
-$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where { -not [string]::IsNullOrEmpty($_) }
-
+$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where { $_ -ne 'none' }
 
 foreach($app in $applist)
 {
@@ -124,7 +123,7 @@ foreach($app in $applist)
     </PackageInformation>
     </MsixPackagingToolTemplate>' > manifest.xml
 
-    c:\space\spaceTools\MsixPackagingTool\MsixPackagingTool.exe create-package --template manifest.xml -v
+    c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template manifest.xml -v
 }
 
 
