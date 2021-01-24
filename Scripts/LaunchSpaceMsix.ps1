@@ -24,8 +24,7 @@ Invoke-WebRequest -Uri $spaceURL -OutFile "c:\space\spaceMsix.ps1"
 $TaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass c:\space\spaceMsix.ps1 -projectname $projectname -storage $storage -storagepass $storagepass -sharename $sharename -app1 `"'$app1'`" -app2 `"'$app2'`" -app3 `"'$app3'`" -app4 `"'$app4'`" -app5 `"'$app5'`" -app6 `"'$app6'`" -app7 `"'$app7'`" -app8 `"'$app8'`""
 $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
 $TaskPrincipal = New-ScheduledTaskPrincipal -UserID "spaceMsix\spaceMsix" -LogonType ServiceAccount -RunLevel Highest
-Set-ScheduledTask -TaskName "spaceMsix" -User $TaskPrincipal.UserID -Password 'Tralala123!'
 Register-ScheduledTask -Action $TaskAction -Trigger $TaskTrigger -Principal $TaskPrincipal -TaskName "spaceMsix"
-
+Set-ScheduledTask -TaskName "spaceMsix" -User $TaskPrincipal.UserID -Password 'Tralala123!'
 
 Restart-Computer -Force
