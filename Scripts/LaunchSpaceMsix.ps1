@@ -14,6 +14,8 @@ Param(
     $app8 
 )
 
+Start-Transcript c:\install.log
+
 # Hyper Space
 DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V /NoRestart
 
@@ -31,4 +33,5 @@ $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
 Register-ScheduledTask -User SYSTEM -Action $action -Trigger $TaskTrigger -TaskName "spaceMsix" -Description "spaceMsix" -Force
 Start-ScheduledTask -TaskName "spaceMsix"
 
+Stop-Transcript
 Restart-Computer -Force
