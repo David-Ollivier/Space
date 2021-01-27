@@ -519,26 +519,6 @@ Expand-Archive -LiteralPath "C:\Optimize\Windows_10_VDI_Optimize-master.zip" -De
 Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
 .\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -Verbose
 
-#$TaskAction2 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Optimize\Virtual-Desktop-Optimization-Tool-master\Win10_VirtualDesktop_Optimize.ps1 -WindowsVersion 2004 -WindowsMediaPlayer -AppxPackages -ScheduledTasks -DefaultUserSettings -Autologgers -Services -NetworkOptimizations -DiskCleanup"
-#$TaskTrigger2 = New-ScheduledTaskTrigger -AtStartup
-#$TaskPrincipa2 = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-#Register-ScheduledTask -Action $TaskAction2 -Trigger $TaskTrigger2 -Principal $TaskPrincipa2 -TaskName "Optimize"
-#
-#$task3 = @"
-#start-sleep 300
-#Unregister-ScheduledTask -TaskName Optimize -Confirm:$false
-#Unregister-ScheduledTask -TaskName Reboot -Confirm:$false
-#Remove-Item C:\Optimize -Recurse -Force
-#
-#Remove-Item "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1" -Force
-#Restart-Computer -Force
-#"@
-#
-#$task3 | Out-file C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1
-#$TaskAction3 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\Reboot.ps1"
-#$TaskTrigger3 = New-ScheduledTaskTrigger -AtStartup
-#$TaskPrincipa3 = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-#Register-ScheduledTask -Action $TaskAction3 -Trigger $TaskTrigger3 -Principal $TaskPrincipa3 -TaskName "Reboot"
 
 
 
