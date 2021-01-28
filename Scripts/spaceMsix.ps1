@@ -109,6 +109,8 @@ foreach($app in $applist)
         $appname = $app.split($separators)[2] + $app.split($separators)[3]
     }
 
+    $manifest = $appname + '-manifest.xml'
+
     '<MsixPackagingToolTemplate
     xmlns="http://schemas.microsoft.com/appx/msixpackagingtool/template/2018"
     xmlns:mptv2="http://schemas.microsoft.com/msix/msixpackagingtool/template/1904">
@@ -121,7 +123,7 @@ foreach($app in $applist)
     PublisherDisplayName="' + $appname + '"
     Version="1.0.0.0">
     </PackageInformation>
-    </MsixPackagingToolTemplate>' > manifest.xml
+    </MsixPackagingToolTemplate>' > $manifest
 
     c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template manifest.xml -v
 }
@@ -141,7 +143,7 @@ foreach($msixName in $allmsix)
 {
     $pfxFilePath = "c:\space\cert\cert.pfx"
     $msixPath = "c:\space\msix\" + $msixName
-    & "c:\space\spaceTools\signtool.exe" sign /f $pfxFilePath /t http://timestamp.globalsign.com/scripts/timstamp.dll /p space /fd SHA256 $msixPath
+    & "c:\space\spaceTools\signtool.exe" sign /f $pfxFilePath /t "http://timestamp.digicert.com" /p space /fd SHA256 $msixPath
 
 
 # Create Space App Attach
