@@ -71,7 +71,7 @@ foreach ( $app in $applist )
 $VMs = get-azvm -ResourceGroupName $resourcegroupName
 $VMs.Name | ForEach-Object -ThrottleLimit 100 -Parallel {
         
-    Stop-AzureRmVM -ResourceGroupName $resourcegroupName -Name $_. -force
+    Stop-AzVM -ResourceGroupName $resourcegroupName -Name $_. -force
 
 }
 
