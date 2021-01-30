@@ -1,6 +1,6 @@
 param(
     [string] $SubscriptionId,
-    [string] $resourcegroupName,
+    [string] $resourceGroupName,
     [string] $hostpoolName,
     [string] $storage,
     [string] $storagepass,
@@ -32,8 +32,8 @@ else {
 # Checking Apps
 $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Object { $_ -ne 'none' } 
 
-$ctx=(Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccName).Context  
-$deployedapps=Get-AZStorageFile -Context $ctx -ShareName $fileShareName  
+$ctx=(Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storage).Context  
+$deployedapps=Get-AZStorageFile -Context $ctx -ShareName $sharename  
 $deployedapps = $deployedapps.name
 
 
