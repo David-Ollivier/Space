@@ -3,7 +3,6 @@ Param(
     $storage,
     $storagepass,
     $sharename,
-    $adminPassword,
     $app1,
     $app2,
     $app3,

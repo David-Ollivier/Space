@@ -95,7 +95,7 @@ choco feature disable -n checksumFiles
         
 
 Set-Location -Path "c:\space\msix"
-$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where { $_ -ne 'none' }
+$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where-Object { $_ -ne 'none' }
 
 foreach($app in $applist)
 {
@@ -123,21 +123,21 @@ foreach($app in $applist)
     PublisherDisplayName="' + $appname + '"
     Version="1.0.0.0">
     </PackageInformation>
-    </MsixPackagingToolTemplate>' > $manifest
+    </MsixPackagingToolTemplate>' | Out-File $manifest
 
-    c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template manifest.xml -v
+    c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template $manifest -v
 }
 
 
 # Creating Space MSIX Containers
 $allmsix = Get-ChildItem -Path "c:\space\msix" -Filter *.msix | Select-object -ExpandProperty Name 
 
-$JsonData = @'
-{
-    "apps":  [
-        ]
-}
-'@ | convertfrom-json
+# $JsonData = @'
+# {
+#     "apps":  [
+#         ]
+# }
+# '@ | convertfrom-json
 
 foreach($msixName in $allmsix)
 {
@@ -151,7 +151,9 @@ foreach($msixName in $allmsix)
     $vhdName = $parentFolder + '.vhd'
 
 # Create vhd
-    New-VHD -SizeBytes 1000MB -Path "c:\space\vhd\$vhdName" -Dynamic -Confirm:$false
+    $msixSize = ((Get-Item $msixName).length/1MB)
+    [int]$vhdSize = ([int]$msixsize * 4 * 1048576)
+    New-VHD -SizeBytes $vhdSize -Path "c:\space\vhd\$vhdName" -Dynamic -Confirm:$false
     $vhdObject = Mount-DiskImage "c:\space\vhd\$vhdName" -Passthru
     $disk = Initialize-Disk -Passthru -Number $vhdObject.Number
     $partition = New-Partition -AssignDriveLetter -UseMaximumSize -DiskNumber $disk.Number
@@ -174,27 +176,27 @@ foreach($msixName in $allmsix)
     Dismount-DiskImage -Imagepath $vhdSrc
     xcopy.exe C:\space\vhd\$vhdName $fullazureshare
 
-    $JsonDataAdd = @"
-    {
-        "vhdSrc": "\\\\$storage\\$sharename\\$parentFolder.vhd",
-        "volumeGuid": "$volumeGuid",
-        "packageName": "$packageName",
-        "parentFolder": "$parentFolderDir",
-        "sessionTarget": {
-            "hostPools": [
-                "Space-Pool"
-            ],
-            "userGroups": [
-                "$parentFolder-sg"
-            ]
-        }
-    }
-"@ | convertfrom-json
+#     $JsonDataAdd = @"
+#     {
+#         "vhdSrc": "\\\\$storage\\$sharename\\$parentFolder.vhd",
+#         "volumeGuid": "$volumeGuid",
+#         "packageName": "$packageName",
+#         "parentFolder": "$parentFolderDir",
+#         "sessionTarget": {
+#             "hostPools": [
+#                 "Space-Pool"
+#             ],
+#             "userGroups": [
+#                 "$parentFolder-sg"
+#             ]
+#         }
+#     }
+# "@ | convertfrom-json
 
-$JsonData.apps += $JsonDataAdd
+# $JsonData.apps += $JsonDataAdd
 }
 
-$JsonData > "c:\space\vhd\AppAttach.json"
+# $JsonData > "c:\space\vhd\AppAttach.json"
 
 xcopy.exe "c:\space\vhd\AppAttach.json" $fullazureshare
 xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
