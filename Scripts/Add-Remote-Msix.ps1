@@ -29,17 +29,12 @@ else {
 }
 
 
-# Mount AppShare
-$azurestorage = '\\' + $storage + '.file.core.windows.net'
-$fullstorage = $azurestorage + '\' + $sharename
-
-$username = 'Azure\' + $storage
-New-SmbMapping -LocalPath 'Z:' -RemotePath $azurestorage -username $username -Password $storagepass
-
-
 # Checking Apps
 $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Object { $_ -ne 'none' } 
-$msix = Get-ChildItem $fullstorage
+
+$ctx=(Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccName).Context  
+$deployedapps=Get-AZStorageFile -Context $ctx -ShareName $fileShareName  
+$deployedapps = $deployedapps.name
 
 
 foreach ( $app in $applist )
@@ -56,7 +51,7 @@ foreach ( $app in $applist )
     }
 
     $vhdname = $appname + '.vhd'
-    while ($msix.name -notcontains $vhdname) { Start-sleep -s 15 }
+    while ($deployedapps -notcontains $vhdname) { Start-sleep -s 15 }
     {
         $uncPath = $fullstorage + '\' + $vhdname
         $obj = Expand-AzWvdMsixImage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -Uri $uncPath
