@@ -38,7 +38,7 @@ Install-Module -Name Az.Compute
 Get-Command -Module Az.DesktopVirtualization | Where-Object { $_.Name -match "MSIX" }
 
 Connect-AzAccount -Identity
-Get-AzSubscription | Out-GridView -PassThru | Select-AzSubscription
+Select-AzSubscription $SubscriptionId
 
 # Checking Apps
 $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Object { $_ -ne 'none' } 
