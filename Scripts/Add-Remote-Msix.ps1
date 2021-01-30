@@ -18,17 +18,16 @@ param(
 # $ErrorActionPreference = 'Stop'
 Connect-AzAccount -Identity
 
+# Import-module az.compute
+# Import-module az.resources
+
 if ($null -ne (get-module -name Az.DesktopVirtualization -ListAvailable -ErrorAction SilentlyContinue)) {
     Import-module -name Az.DesktopVirtualization
 }
 else {
     Install-module -name Az.DesktopVirtualization -force
 }
-Get-InstalledModule -Name AzureRM -AllVersions | Select-Object Name, Version
-Install-module AzureRM
-Import-module AzureRM
-# Import-module az.compute
-# Import-module az.resources
+
 
 # Mount AppShare
 $azurestorage = $storage + '.file.core.windows.net\'
