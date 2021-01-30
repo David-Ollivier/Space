@@ -43,7 +43,6 @@ REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v FlipFlopProfileDirectoryName /T REG_
 REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v SizeInMBs /T REG_DWORD /D 30000 /f
 REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v IsDynamic /T REG_DWORD /D 1 /f
 REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VolumeType /T REG_SZ /D "vhdx" /f
-# REG ADD "HKLM\SOFTWARE\FSLogix\Logging" /v LogFileKeepingPeriod /T REG_DWORD /D 7 /f
 REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VHDLocations /T REG_MULTI_SZ /D \\$storage\fslogix\%username%\VHD /f
 
 
@@ -55,16 +54,9 @@ REG ADD "HKLM\SOFTWARE\FSlogix\Profiles" /v VHDLocations /T REG_MULTI_SZ /D \\$s
 
 
 New-Item -Path c:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\ -ItemType Directory -Force
-New-Item -Path c:\Windows\System32\GroupPolicy\Machine\Scripts\Shutdown\ -ItemType Directory -Force
 $storageuser = $storage.split('.')[0]
 $storagescript = "cmdkey /add:$storage /user:Azure\$storageuser /pass:$storagepass"
 Set-Content c:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspaceshare.ps1 $storagescript
-
-New-Item -Path c:\Windows\System32\GroupPolicy\User\Scripts\Logon\ -ItemType Directory -Force
-New-Item -Path c:\Windows\System32\GroupPolicy\User\Scripts\Logoff\ -ItemType Directory -Force
-# $storageapp = $storage.split('.')[0]
-# $storagescript = "cmdkey /add:$storage /user:Azure\$storageapp /pass:$storagepass"
-# Set-Content C:\Windows\System32\GroupPolicy\User\Scripts\Logon\mountspaceshare.ps1 $storagescript
 
 
 
@@ -90,41 +82,14 @@ Import-PfxCertificate -FilePath C:\temp\cert.pfx -CertStoreLocation Cert:\LocalM
 # cmd /c "sc privs gpsvc SeManageVolumePrivilege/SeTcbPrivilege/SeTakeOwnershipPrivilege/SeIncreaseQuotaPrivilege/SeAssignPrimaryTokenPrivilege/SeSecurityPrivilege/SeChangeNotifyPrivilege/SeCreatePermanentPrivilege/SeShutdownPrivilege/SeLoadDriverPrivilege/SeRestorePrivilege/SeBackupPrivilege/SeCreatePagefilePrivilege"
 
 
-$client = New-Object System.Net.WebClient
-$url = "https://raw.githubusercontent.com/SpaceWVD/Space/master/Scripts/AppAttach.ps1"
-$client.DownloadFile($url, "C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttach.ps1")
-
-$TaskAction1 = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttach.ps1 -ConfigFile \\$storage\fslogix\msix\AppAttach.json -Mode VmStart"
-$TaskTrigger = New-ScheduledTaskTrigger -AtStartup
-$TaskPrincipal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-Register-ScheduledTask -Action $TaskAction1 -Trigger $TaskTrigger -Principal $TaskPrincipal -TaskName "AppAttachProgram"
-
-$jsonpath = $fullappshare + '\AppAttach.json'
-
 $psscriptsmachine = @"
  
-[Shutdown]
-0CmdLine=C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttach.ps1
-0Parameters=-ConfigFile $jsonpath -Mode VmShutdown
 [Startup]
 0CmdLine=C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspaceshare.ps1
 0Parameters=
 "@
 $psscriptsmachine | Out-file C:\Windows\System32\GroupPolicy\Machine\Scripts\psscripts.ini -Force
 
-
-$psscriptsuser = @"
- 
-[Logoff]
-0CmdLine=C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttach.ps1
-0Parameters=-ConfigFile $jsonpath -Mode UserLoff
-[Logon]
-0CmdLine=C:\Windows\System32\GroupPolicy\User\Scripts\Logon\mountspaceshare.ps1
-0Parameters=
-1CmdLine=C:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\AppAttach.ps1
-1Parameters=-ConfigFile $jsonpath -Mode UserLogon
-"@
-$psscriptsuser | Out-file C:\Windows\System32\GroupPolicy\User\Scripts\psscripts.ini -Force
 
 $gpt = @"
 [General]
@@ -136,121 +101,11 @@ gPCUserExtensionNames=[{35378EAC-683F-11D2-A89A-00C04FBBCFA2}{DF3DC19F-F72C-4030
 $gpt | Out-file C:\Windows\System32\GroupPolicy\GPT.INI -Force
 
 
-reg load HKU\TempDefault C:\Users\Default\NTUSER.DAT
-
-$appreg = @"
-Windows Registry Editor Version 5.00
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup]
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0]
-"GPO-ID"="LocalGPO"
-"SOM-ID"="Local"
-"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
-"DisplayName"="AppAttach Startup"
-"GPOName"="AppAttach Startup"
-"PSScriptOrder"=dword:00000001
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0\0]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\mountspaceshare.ps1"
-"Parameters"=""
-"IsPowershell"=dword:00000001
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Startup\0\1]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\AppAttach.ps1"
-"Parameters"="-ConfigFile \\\\$storage\\$appsharename\\AppAttach.json -Mode VmStart"
-"IsPowershell"=dword:00000001
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup]
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0]
-"GPO-ID"="LocalGPO"
-"SOM-ID"="Local"
-"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
-"DisplayName"="AppAttach Startup"
-"GPOName"="AppAttach Startup"
-"PSScriptOrder"=dword:00000001
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Startup\0\0]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Startup\\mountspaceshare.ps1"
-"Parameters"=""
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown]
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown\0]
-"GPO-ID"="LocalGPO"
-"SOM-ID"="Local"
-"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
-"DisplayName"="AppAttach Shutdown"
-"GPOName"="AppAttach Shutdown"
-"PSScriptOrder"=dword:00000001
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Shutdown\0\0]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Shutdown\\AppAttach.ps1"
-"Parameters"="-ConfigFile \\\\$storage\\$appsharename\\AppAttach.json -Mode VmShutdown"
-"IsPowershell"=dword:00000001
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown]
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown\0]
-"GPO-ID"="LocalGPO"
-"SOM-ID"="Local"
-"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\Machine"
-"DisplayName"="AppAttach Shutdown"
-"GPOName"="AppAttach Shutdown"
-"PSScriptOrder"=dword:00000001
- 
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\State\Machine\Scripts\Shutdown\0\0]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\Machine\\Scripts\\Shutdown\\AppAttach.ps1"
-"Parameters"="-ConfigFile \\\\$storage\\$appsharename\\AppAttach.json -Mode VmShutdown"
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
- 
-[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logon]
- 
-[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logon\0]
-"GPO-ID"="LocalGPO"
-"SOM-ID"="Local"
-"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\User"
-"DisplayName"="AppAttach User Startup"
-"GPOName"="AppAttach User Startup"
-"PSScriptOrder"=dword:00000001
- 
-[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logon\0\0]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\User\\Scripts\\Startup\\AppAttach.ps1"
-"Parameters"="-ConfigFile \\\\$storage\\$appsharename\\AppAttach.json -Mode UserLogon"
-"IsPowershell"=dword:00000001
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
- 
-[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logoff]
- 
-[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logoff\0]
-"GPO-ID"="LocalGPO"
-"SOM-ID"="Local"
-"FileSysPath"="C:\\Windows\\System32\\GroupPolicy\\User"
-"DisplayName"="AppAttach User Shutdown"
-"GPOName"="AppAttach User Shutdown"
-"PSScriptOrder"=dword:00000001
- 
-[HKU\TempDefault\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\Scripts\Logoff\0\0]
-"Script"="C:\\Windows\\System32\\GroupPolicy\\User\\Scripts\\Startup\\AppAttach.ps1"
-"Parameters"="-ConfigFile \\\\$storage\\$appsharename\\AppAttach.json -Mode UserLogoff"
-"IsPowershell"=dword:00000001
-"ExecTime"=hex(b):00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
-
-"@
-
-$appreg | Out-file c:\temp\AppAttach.reg -Force
-reg import c:\temp\AppAttach.reg
-
-
 
         ##    \ \_____
       ####### [==_____> Install International Space Program >
         ##    /_/
+
 
 # if ($language -ne "en-us")
 # {
@@ -282,7 +137,7 @@ reg import c:\temp\AppAttach.reg
         ##    /_/
 
   
-
+reg load HKU\TempDefault C:\Users\Default\NTUSER.DAT
 reg add "HKU\TempDefault\software\Policies\Microsoft\office\16.0\common" /v InsiderSlabBehavior /t REG_DWORD /d 2 /f
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v enable /t REG_DWORD /d 1 /f
 reg add "HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode" /v syncwindowsetting /t REG_DWORD /d 1 /f

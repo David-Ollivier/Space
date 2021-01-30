@@ -40,7 +40,6 @@ $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Obj
 $msix = Get-ChildItem $fullstorage
 
 
-
 foreach ( $app in $applist )
 {
 
@@ -54,10 +53,10 @@ foreach ( $app in $applist )
         $appname = $app.split($separators)[2] + $app.split($separators)[3]
     }
 
-
-    while ($msix.name -notcontains $appname) { Start-sleep -s 15 }
+    $vhdname = $appname + '.vhd'
+    while ($msix.name -notcontains $vhdname) { Start-sleep -s 15 }
     {
-        $uncPath = $fullstorage + '\' + $appname + '.vhd'
+        $uncPath = $fullstorage + '\' + $vhdname
         $obj = Expand-AzWvdMsixImage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -Uri $uncPath
         New-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -PackageAlias $obj.PackageAlias -DisplayName $appname -ImagePath $uncPath -IsActive:$true
         Get-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId | Where-Object { $_.PackageFamilyName -eq $obj.PackageFamilyName }
