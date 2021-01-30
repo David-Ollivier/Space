@@ -30,10 +30,11 @@ else {
 
 
 # Mount AppShare
-$azurestorage = $storage + '.file.core.windows.net\'
-$fullstorage = $azurestorage + $sharename
-cmd.exe /C "cmdkey /add:$azurestorage /user:Azure\$storage /pass:$storagepass"
-New-PSDrive -Name Z -PSProvider FileSystem -Root $fullstorage
+$azurestorage = '\\' + $storage + '.file.core.windows.net'
+$fullstorage = $azurestorage + '\' + $sharename
+
+$username = 'Azure\' + $storage
+New-SmbMapping -LocalPath 'Z:' -RemotePath $azurestorage -username $username -Password $storagepass
 
 
 # Checking Apps
