@@ -29,16 +29,16 @@ $app7 = "none"
 $app8 = "none"
 
 # $ErrorActionPreference = 'Stop'
-Install-Module -Name Az.Accounts
-Install-Module -Name Az.DesktopVirtualization
-Install-Module -Name Az.Network
-Install-Module -Name Az.Compute
+Install-Module -Name Az.Accounts -AllowClobber -Force
+Install-Module -Name Az.DesktopVirtualization -AllowClobber -Force
+Install-Module -Name Az.Network -AllowClobber -Force
+Install-Module -Name Az.Compute -AllowClobber -Force
 
 @("Az.Accounts","Az.DesktopVirtualization","Az.Network","Az.Compute")|% $_{if(Get-Module -ListAvailable -Name $_) {update-module -name $_ -force} else {install-module -name $_ -skippublishercheck -force}}
 Get-Command -Module Az.DesktopVirtualization | Where-Object { $_.Name -match "MSIX" }
 
 Connect-AzAccount -Identity
-Select-AzSubscription $SubscriptionId
+Select-AzSubscription -SubscriptionId $SubscriptionId
 
 # Checking Apps
 $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Object { $_ -ne 'none' } 
