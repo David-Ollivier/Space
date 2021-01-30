@@ -52,11 +52,10 @@ $deployedapps=Get-AZStorageFile -Context $ctx -ShareName $sharename
 $deployedapps = $deployedapps.name
 
 
-foreach ( $app in $applist )
+foreach ( $app in $applist ){}
 {
     write-output $app
-    $separators = (" ", ".")
-    $appname = $app.split($separators)[2]
+    $appname = ($app.split(" ")[2]).split(".")[0]
     Write-Output $appname
 
     # App Name must have at least 3 chars
