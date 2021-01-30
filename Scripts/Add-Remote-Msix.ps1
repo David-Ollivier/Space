@@ -69,7 +69,7 @@ foreach ( $app in $applist )
 
 
 # Shutdown Space Communication
-$VMs = Get-AzureRmVM -ResourceGroupName $resourcegroupName
+$VMs = get-azvm -ResourceGroupName $resourcegroupName
 $VMs.Name | ForEach-Object -ThrottleLimit 100 -Parallel {
         
     Stop-AzureRmVM -ResourceGroupName $resourcegroupName -Name $_. -force
@@ -78,6 +78,6 @@ $VMs.Name | ForEach-Object -ThrottleLimit 100 -Parallel {
 
 ForEach ( $vm in $VMs)
 {
-    Stop-AzureRmVM -ResourceGroupName $resourcegroupName -Name $vm -force
+    Stop-AzVM -ErrorAction Stop -ResourceGroupName $resourcegroupName -Name $vm -Force
 
 }
