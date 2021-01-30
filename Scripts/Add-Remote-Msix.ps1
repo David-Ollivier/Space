@@ -47,14 +47,14 @@ $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Obj
 Write-output $applist
 
 $storageuser = $storage.split('.')[0]
-$ctx=(Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageuser).Context  
-$deployedapps=Get-AZStorageFile -Context $ctx -ShareName $sharename  
+$ctx=(Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageuser).Context
+$deployedapps=Get-AZStorageFile -Context $ctx -ShareName $sharename
 $deployedapps = $deployedapps.name
 
 
 foreach ( $app in $applist )
 {
-
+    write-output $app
     $separators = (" ", ".")
     $appname = $app.split($separators)[2]
     Write-Output $appname
