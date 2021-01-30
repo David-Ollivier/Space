@@ -52,7 +52,7 @@ $deployedapps=Get-AZStorageFile -Context $ctx -ShareName $sharename
 $deployedapps = $deployedapps.name
 
 
-foreach ( $app in $applist ){}
+foreach ( $app in $applist )
 {
 
     $separators = (" ", ".")
@@ -68,18 +68,16 @@ foreach ( $app in $applist ){}
 
     $vhdname = $appname + '.vhd'
     write-output $vhdname
-    
-    while ($deployedapps -notcontains $vhdname) { Start-sleep -s 15 }
-    {
-        $uncPath = $fullstorage + '\' + $vhdname
-        $obj = Expand-AzWvdMsixImage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -Uri $uncPath
-        New-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -PackageAlias $obj.PackageAlias -DisplayName $appname -ImagePath $uncPath -IsActive:$true
-        Get-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId | Where-Object { $_.PackageFamilyName -eq $obj.PackageFamilyName }
 
-    }
+    while ($deployedapps -notcontains $vhdname) { Start-sleep -s 15 } 
 
+    $uncPath = $fullstorage + '\' + $vhdname
+    $obj = Expand-AzWvdMsixImage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -Uri $uncPath
+    New-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -PackageAlias $obj.PackageAlias -DisplayName $appname -ImagePath $uncPath -IsActive:$true
+    Get-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId | Where-Object { $_.PackageFamilyName -eq $obj.PackageFamilyName }
 }
 
+Write-Output $resourcegroupName
 
 # Shutdown Space Communication
 $VMs = get-azvm -ResourceGroupName $resourcegroupName
