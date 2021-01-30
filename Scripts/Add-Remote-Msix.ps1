@@ -52,7 +52,7 @@ $deployedapps=Get-AZStorageFile -Context $ctx -ShareName $sharename
 $deployedapps = $deployedapps.name
 
 
-foreach ( $app in $applist ){}
+foreach ( $app in $applist )
 {
     write-output $app
     $appname = ($app.split(" ")[2]).split(".")[0]
@@ -79,13 +79,6 @@ foreach ( $app in $applist ){}
 Write-Output $resourcegroupName
 
 # Shutdown Space Communication
-$VMs = get-azvm -ResourceGroupName $resourcegroupName
-$VMs.Name | ForEach-Object -ThrottleLimit 100 -Parallel {
-        
-    Stop-AzVM -ResourceGroupName $resourcegroupName -Name $_. -force
-
-}
-
 ForEach ( $vm in $VMs)
 {
     Stop-AzVM -ErrorAction Stop -ResourceGroupName $resourcegroupName -Name $vm -Force
