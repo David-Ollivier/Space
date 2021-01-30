@@ -15,7 +15,7 @@ param(
     [string] $app8
 )
 
-$ErrorActionPreference = 'Stop'
+# $ErrorActionPreference = 'Stop'
 Connect-AzAccount -Identity
 
 if ($null -ne (get-module -name Az.DesktopVirtualization -ListAvailable -ErrorAction SilentlyContinue)) {
@@ -31,7 +31,9 @@ Import-module AzureRM
 # Import-module az.resources
 
 # Mount AppShare
-$fullstorage = $storage + '.file.core.windows.net\' + $sharename
+$azurestorage = $storage + '.file.core.windows.net\'
+$fullstorage = $azurestorage + $sharename
+cmd.exe /C "cmdkey /add:$azurestorage /user:Azure\$storage /pass:$storagepass"
 New-PSDrive -Name Z -PSProvider FileSystem -Root $fullstorage
 
 
