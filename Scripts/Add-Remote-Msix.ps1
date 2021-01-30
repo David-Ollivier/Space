@@ -16,7 +16,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-# Connect-AzAccount -Identity ?
+Connect-AzAccount -Identity
 
 if ($null -ne (get-module -name Az.DesktopVirtualization -ListAvailable -ErrorAction SilentlyContinue)) {
     Import-module -name Az.DesktopVirtualization
