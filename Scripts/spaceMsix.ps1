@@ -43,7 +43,7 @@ New-PSDrive -Name Z -PSProvider FileSystem -Root $fullazureshare
 
 # spaceTools
 $spacefolder = "c:\space\"
-$toolsURL = 'https://github.com/SpaceWVD/Space/raw/master/Files/spaceTools.zip'
+$toolsURL = 'https://raw.githubusercontent.com/David-Ollivier/Space/master/Files/spaceTools.zip'
 $toolsZip = "spaceTools.zip"
 Invoke-WebRequest -Uri $toolsURL -OutFile "$spacefolder$toolsZip"
 Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath "c:\space\spaceTools" -Force -Verbose

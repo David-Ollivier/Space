@@ -462,7 +462,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "https://raw.githubusercontent.com/SpaceWVD/Space/master/Scripts/CustomizeSpaceShip.ps1"
+                        "https://raw.githubusercontent.com/David-Ollivier/Space/master/Scripts/CustomizeSpaceShip.ps1"
                     ],
                     "timestamp": 123456789,
                     "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File CustomizeSpaceShip.ps1 -storage ', variables('storage'),' -storagepass ', variables('storagepass'))]"
