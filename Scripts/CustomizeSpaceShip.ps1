@@ -1,8 +1,6 @@
 param(
     $storage,
-    $storagepass,
-    $appsharename,
-    $certpass
+    $storagepass
 )
 
 
@@ -66,9 +64,9 @@ Set-Content c:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspacesh
         ##    /_/
 
 
-$pfxpass = $certpass | ConvertTo-SecureString -AsPlainText -Force
+$pfxpass = space | ConvertTo-SecureString -AsPlainText -Force
 $client = New-Object System.Net.WebClient
-$fullappshare = '\\' + $storage + '\' + $appsharename
+$fullappshare = '\\' + $storage + '\' + "msix"
 $certpath = $fullappshare + '\cert.pfx'
 xcopy.exe $certpath "c:\temp\cert.pfx" 
 Import-PfxCertificate -FilePath C:\temp\cert.pfx -CertStoreLocation Cert:\LocalMachine\TrustedPeople -Password $pfxpass
@@ -164,8 +162,8 @@ Add-MpPreference -ExclusionExtension "%TEMP%*.VHDX"
 Add-MpPreference -ExclusionExtension "%Windir%\TEMP*.VHDX"
 Add-MpPreference -ExclusionExtension "\\$storage\fslogix\*.VHDX"
 Add-MpPreference -ExclusionExtension "\\$storage\fslogix\*.CIM"
-Add-MpPreference -ExclusionExtension "\\$storage\$appsharename\*.VHD"
-Add-MpPreference -ExclusionExtension "\\$storage\$appsharename\*.VHDX"
+Add-MpPreference -ExclusionExtension "\\$storage\msix\*.VHD"
+Add-MpPreference -ExclusionExtension "\\$storage\msix\*.VHDX"
 Add-MpPreference -ExclusionExtension ".CIM"
 
 

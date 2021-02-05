@@ -131,6 +131,7 @@ foreach($app in $applist)
 
 # Creating Space MSIX Containers
 $allmsix = Get-ChildItem -Path "c:\space\msix" -Filter *.msix | Select-object -ExpandProperty Name 
+'app,appId' | out-file c:\space\appsIds.csv
 
 # $JsonData = @'
 # {
@@ -167,11 +168,16 @@ foreach($msixName in $allmsix)
     set-location C:\space\spaceTools\msixmgr
     .\msixmgr.exe -Unpack -packagePath C:\space\msix\$msixName -destination $fullvhdappfolder -applyacls
 
-# Gettings vhd's informations
+# Gettings msix's informations
     $vhdSrc="C:\space\vhd\$vhdName"
-    $packageName = (Get-ChildItem -path $fullvhdappfolder).name
-    $parentFolderDir = "\" + $parentFolder + "\"
-    $volumeGuid = (((get-volume -DriveLetter $driveletter).UniqueId).split('{')[1]).split('}')[0]
+    set-location $fullvhdappfolder
+    set-location (Get-ChildItem).name
+    $appId = (get-content .\AppxManifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
+    $appname + ',' + $appId | out-file c:\space\appsIds.csv -append
+
+    # $packageName = (Get-ChildItem -path $fullvhdappfolder).name
+    # $parentFolderDir = "\" + $parentFolder + "\"
+    # $volumeGuid = (((get-volume -DriveLetter $driveletter).UniqueId).split('{')[1]).split('}')[0]
 
     Dismount-DiskImage -Imagepath $vhdSrc
     xcopy.exe C:\space\vhd\$vhdName $fullazureshare
@@ -200,6 +206,7 @@ foreach($msixName in $allmsix)
 
 xcopy.exe "c:\space\vhd\AppAttach.json" $fullazureshare
 xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
+xcopy.exe "c:\space\appsIds.csv" $fullazureshare
 
 Stop-Transcript
 xcopy.exe "c:\space\appTranscript.txt" $fullazureshare
