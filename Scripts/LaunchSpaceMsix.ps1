@@ -40,6 +40,10 @@ $rootStore.Close()
 xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
 
 
+# Sending MSIX Packages Informations
+$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where-Object { $_ -ne 'none' }
+$applist | out-file c:\space\apps.csv
+
 
 # Hyper vSpace Program
 DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V /NoRestart
@@ -54,7 +58,7 @@ Invoke-WebRequest -Uri $spaceURL -OutFile "c:\space\spaceMsix.ps1"
 # $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
 # Register-ScheduledTask -Action $TaskAction -Trigger $TaskTrigger -user "spaceMsix\spaceMsix" -Password $adminPassword -TaskName "spaceMsix" -RunLevel Highest
 
-$action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass c:\space\spaceMsix.ps1 -projectname $projectname -storage $storage -storagepass $storagepass -sharename $sharename -app1 `"$app1`" -app2 `"$app2`" -app3 `"$app3`" -app4 `"$app4`" -app5 `"$app5`" -app6 `"$app6`" -app7 `"$app7`" -app8 `"$app8`""
+$action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass c:\space\spaceMsix.ps1 -projectname $projectname -storage $storage -storagepass $storagepass -sharename $sharename"
 $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
 Register-ScheduledTask -User SYSTEM -Action $action -Trigger $TaskTrigger -TaskName "spaceMsix" -Description "spaceMsix" -Force
 Start-ScheduledTask -TaskName "spaceMsix"

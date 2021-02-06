@@ -2,15 +2,7 @@ Param(
     $storage,
     $storagepass,
     $sharename,
-    $projectname,
-    $app1,
-    $app2,
-    $app3,
-    $app4,
-    $app5,
-    $app6,
-    $app7,
-    $app8 
+    $projectname
 )
 
         ##    \ \_____
@@ -48,17 +40,6 @@ Invoke-WebRequest -Uri $toolsURL -OutFile "$spacefolder$toolsZip"
 Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath "c:\space\spaceTools" -Force -Verbose
 
 
-# Prepare Space Packets Managers
-# $DesktopAppInstallerURL = "https://github.com/microsoft/winget-cli/releases/download/v0.2.2941-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-# $DesktopAppInstaller = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-# $DesktopAppInstallerPath =  "c:\space\spaceTools\" + $DesktopAppInstaller
-# Invoke-WebRequest -Uri $DesktopAppInstallerURL -OutFile $DesktopAppInstallerPath
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00_14.0.29231.0.Appx"
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.VCLibs.140.00.UWPDesktop_14.0.29231.0.Appx"
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.appxbundle"
-# Add-AppxPackage "c:\space\spaceTools\Microsoft.MsixPackagingTool_2020.1006.2137.Msix"
-
-
 # Install Flying Packets Manager
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
@@ -71,8 +52,9 @@ choco feature disable -n checksumFiles
         ##    /_/
         
 
+$applist = get-content -path c:\space\apps.csv
+$applist 
 Set-Location -Path "c:\space\msix"
-$applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where-Object { $_ -ne 'none' }
 
 foreach($app in $applist)
 {
@@ -110,12 +92,6 @@ foreach($app in $applist)
 $allmsix = Get-ChildItem -Path "c:\space\msix" -Filter *.msix | Select-object -ExpandProperty Name 
 'app,appId' | out-file c:\space\appsIds.csv
 
-# $JsonData = @'
-# {
-#     "apps":  [
-#         ]
-# }
-# '@ | convertfrom-json
 
 foreach($msixName in $allmsix)
 {
@@ -152,36 +128,13 @@ foreach($msixName in $allmsix)
     $appId = (get-content .\AppxManifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
     $appname + ',' + $appId | out-file c:\space\appsIds.csv -append
 
-    # $packageName = (Get-ChildItem -path $fullvhdappfolder).name
-    # $parentFolderDir = "\" + $parentFolder + "\"
-    # $volumeGuid = (((get-volume -DriveLetter $driveletter).UniqueId).split('{')[1]).split('}')[0]
 
     Dismount-DiskImage -Imagepath $vhdSrc
     xcopy.exe C:\space\vhd\$vhdName $fullazureshare
 
-#     $JsonDataAdd = @"
-#     {
-#         "vhdSrc": "\\\\$storage\\$sharename\\$parentFolder.vhd",
-#         "volumeGuid": "$volumeGuid",
-#         "packageName": "$packageName",
-#         "parentFolder": "$parentFolderDir",
-#         "sessionTarget": {
-#             "hostPools": [
-#                 "Space-Pool"
-#             ],
-#             "userGroups": [
-#                 "$parentFolder-sg"
-#             ]
-#         }
-#     }
-# "@ | convertfrom-json
-
-# $JsonData.apps += $JsonDataAdd
 }
 
-# $JsonData > "c:\space\vhd\AppAttach.json"
-
-xcopy.exe "c:\space\vhd\AppAttach.json" $fullazureshare
+# Copying Datas to Network Share
 xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
 xcopy.exe "c:\space\appsIds.csv" $fullazureshare
 

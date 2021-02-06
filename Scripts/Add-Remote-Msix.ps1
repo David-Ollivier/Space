@@ -28,7 +28,7 @@ Get-Command -Module Az.DesktopVirtualization | Where-Object { $_.Name -match "MS
 
 # Connecting to the system
 Connect-AzAccount -Identity
-Select-AzSubscription -SubscriptionId $SubscriptionId
+# Select-AzSubscription -SubscriptionId $SubscriptionId
 
 
 # Creating Remoting Packages Container
@@ -91,7 +91,7 @@ foreach ( $app in $applist ) {
 
 
 # Shutdown Space Communication
-$VMs = (Get-AzVM -ResourceGroupName $resourcegroupName).name
+# $VMs = (Get-AzVM -ResourceGroupName $resourcegroupName).name
 ForEach ( $vm in $VMs) {
 
     Stop-AzVM -ErrorAction Stop -ResourceGroupName $resourcegroupName -Name $vm -Force
