@@ -29,7 +29,6 @@ Param(
 # Manage Space Share & Folders
 new-item -path "c:\space\msix" -ItemType Directory
 new-item -path "c:\space\vhd" -ItemType Directory
-new-item -path "c:\space\cert" -ItemType Directory
 new-item -path "c:\space\spaceTools" -ItemType Directory
 Start-Transcript "c:\space\appTranscript.txt"
 
@@ -47,28 +46,6 @@ $toolsURL = 'https://raw.githubusercontent.com/David-Ollivier/Space/master/Files
 $toolsZip = "spaceTools.zip"
 Invoke-WebRequest -Uri $toolsURL -OutFile "$spacefolder$toolsZip"
 Expand-Archive -LiteralPath "c:\space\spaceTools.zip" -DestinationPath "c:\space\spaceTools" -Force -Verbose
-
-
-# Flying Certificate
-
-# $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("c:\space\spaceTools\cert\cert.pfx","space")
-# $rootStore = Get-Item cert:\LocalMachine\Root
-# $rootStore.Open("ReadWrite")
-# $rootStore.Add($cert)
-# $rootStore.Close()
-
-
-New-SelfSignedCertificate -Type Custom -Subject "CN=$projectname" -KeyUsage DigitalSignature -FriendlyName "$projectname" -CertStoreLocation "Cert:\CurrentUser\my" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}") -NotAfter (Get-Date).AddMonths(242)
-$password = ConvertTo-SecureString -String space -Force -AsPlainText
-Set-Location Cert:\CurrentUser\my
-$certThmb = ( Get-ChildItem | Where-Object{$_.Subject -eq "CN=$projectname"} ).Thumbprint
-Export-PfxCertificate -cert "Cert:\CurrentUser\my\$certThmb" -FilePath c:\space\cert\cert.pfx -Password $password
-
-$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("c:\space\cert\cert.pfx","space")
-$rootStore = Get-Item cert:\LocalMachine\Root
-$rootStore.Open("ReadWrite")
-$rootStore.Add($cert)
-$rootStore.Close()
 
 
 # Prepare Space Packets Managers

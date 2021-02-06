@@ -14,15 +14,7 @@ Param(
 )
 
 Start-Transcript c:\install.log
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2018-09-01-preview",
-            "name": "[guid(resourceGroup().id)]",
-            "properties": {
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
-                "principalId": "<your-principal-id>"
-            }
-        }
+
 # Mount Sapce Share
 $storageuser = $storage.split('.')[0]
 $storageuser = "Azure\" + $storageuser

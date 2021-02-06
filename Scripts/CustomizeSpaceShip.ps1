@@ -64,14 +64,6 @@ Set-Content c:\Windows\System32\GroupPolicy\Machine\Scripts\Startup\mountspacesh
         ##    /_/
 
 
-$pfxpass = space | ConvertTo-SecureString -AsPlainText -Force
-$client = New-Object System.Net.WebClient
-$fullappshare = '\\' + $storage + '\' + "msix"
-$certpath = $fullappshare + '\cert.pfx'
-xcopy.exe $certpath "c:\temp\cert.pfx" 
-Import-PfxCertificate -FilePath C:\temp\cert.pfx -CertStoreLocation Cert:\LocalMachine\TrustedPeople -Password $pfxpass
-
-
 # $client = New-Object System.Net.WebClient
 # $url = "https://download.sysinternals.com/files/PSTools.zip"
 # $client.DownloadFile($url, "C:\temp\PSTools.zip")
