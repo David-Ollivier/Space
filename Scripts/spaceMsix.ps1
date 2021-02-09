@@ -5,6 +5,9 @@ Param(
     $projectname
 )
 
+if ( (test-path c:\space) -eq $true ){ exit }
+
+
         ##    \ \_____
       ####### [==_____> Space Applications Containerization Program > 
         ##    /_/
