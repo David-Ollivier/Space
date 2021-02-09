@@ -5,7 +5,7 @@ Param(
     $projectname
 )
 
-if ( (test-path c:\space) -eq $true ){ exit }
+if ( (test-path c:\space\msix) -eq $true ){ exit }
 
 
         ##    \ \_____
@@ -88,6 +88,7 @@ foreach($app in $applist)
     </MsixPackagingToolTemplate>' | Out-File $manifest
 
     c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template $manifest -v
+
 }
 
 
