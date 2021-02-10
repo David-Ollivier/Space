@@ -50,7 +50,6 @@ DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V /NoRestart
 
 
 # Getting spaceMsix
-new-item -path "c:\space" -ItemType Directory
 $spaceURL = 'https://raw.githubusercontent.com/David-Ollivier/Space/master/Scripts/spaceMsix.ps1'
 Invoke-WebRequest -Uri $spaceURL -OutFile "c:\space\spaceMsix.ps1"
 

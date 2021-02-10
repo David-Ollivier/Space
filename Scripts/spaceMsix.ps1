@@ -88,7 +88,6 @@ foreach($app in $applist)
     </MsixPackagingToolTemplate>' | Out-File $manifest
 
     c:\space\spaceTools\MsixPackagingTool\MsixPackagingToolCLI.exe create-package --template $manifest -v
-
 }
 
 
@@ -102,13 +101,14 @@ foreach($msixName in $allmsix)
     $pfxFilePath = "c:\space\cert\cert.pfx"
     $msixPath = "c:\space\msix\" + $msixName
     & "c:\space\spaceTools\signtool.exe" sign /f $pfxFilePath /t "http://timestamp.digicert.com" /p space /fd SHA256 $msixPath
-
+    start-sleep -s 5
 
 # Create Space App Attach
     $parentFolder = $msixName.split('_')[0]
     $vhdName = $parentFolder + '.vhd'
 
 # Create vhd
+    set-location c:\space\msix
     $msixSize = ((Get-Item $msixName).length/1MB)
     [int]$vhdSize = ([int]$msixsize * 4 * 1048576)
     New-VHD -SizeBytes $vhdSize -Path "c:\space\vhd\$vhdName" -Dynamic -Confirm:$false
@@ -122,11 +122,11 @@ foreach($msixName in $allmsix)
     $fullvhdappfolder = $driveletter + ':\' + $parentFolder
     mkdir $fullvhdappfolder
 
-    set-location C:\space\spaceTools\msixmgr
+    set-location c:\space\spaceTools\msixmgr
     .\msixmgr.exe -Unpack -packagePath C:\space\msix\$msixName -destination $fullvhdappfolder -applyacls
 
 # Gettings msix's informations
-    $vhdSrc="C:\space\vhd\$vhdName"
+    $vhdSrc="c:\space\vhd\$vhdName"
     set-location $fullvhdappfolder
     set-location (Get-ChildItem).name
     $appId = (get-content .\AppxManifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
@@ -139,7 +139,6 @@ foreach($msixName in $allmsix)
 }
 
 # Copying Datas to Network Share
-xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
 xcopy.exe "c:\space\appsIds.csv" $fullazureshare
 
 Stop-Transcript
