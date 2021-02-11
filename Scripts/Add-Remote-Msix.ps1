@@ -39,6 +39,14 @@ New-AzWvdApplicationGroup -ResourceGroupName $resourcegroupName `
     -HostPoolArmPath "/subscriptions/$SubscriptionId/resourcegroups/$resourcegroupName/providers/Microsoft.DesktopVirtualization/hostPools/$hostpoolName" `
     -ApplicationGroupType 'RemoteApp'
 
+Write-output $app1
+Write-output $app2
+Write-output $app3
+Write-output $app4
+Write-output $app5
+Write-output $app6
+Write-output $app7
+Write-output $app8
 
 # Checking Apps
 $applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Object { $_ -ne 'none' } 
