@@ -60,7 +60,6 @@ Invoke-WebRequest -Uri $spaceURL -OutFile "c:\space\spaceMsix.ps1"
 $action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass c:\space\spaceMsix.ps1 -projectname $projectname -storage $storage -storagepass $storagepass -sharename $sharename"
 $TaskTrigger = New-ScheduledTaskTrigger -AtStartup
 Register-ScheduledTask -User SYSTEM -Action $action -Trigger $TaskTrigger -TaskName "spaceMsix" -Description "spaceMsix" -Force
-Start-ScheduledTask -TaskName "spaceMsix"
 
 Stop-Transcript
 Restart-Computer -Force

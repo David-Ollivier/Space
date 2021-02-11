@@ -5,8 +5,6 @@ Param(
     $projectname
 )
 
-if ( (test-path c:\space\msix) -eq $true ){ exit }
-
 
         ##    \ \_____
       ####### [==_____> Space Applications Containerization Program > 
@@ -141,5 +139,6 @@ foreach($msixName in $allmsix)
 # Copying Datas to Network Share
 xcopy.exe "c:\space\appsIds.csv" $fullazureshare
 
+Disable-ScheduledTask -TaskName "spaceMsix"
 Stop-Transcript
 xcopy.exe "c:\space\appTranscript.txt" $fullazureshare
