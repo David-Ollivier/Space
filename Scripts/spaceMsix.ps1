@@ -130,7 +130,7 @@ foreach($msixName in $allmsix)
     set-location $fullvhdappfolder
     set-location (Get-ChildItem).name
     $appId = (get-content .\AppxManifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
-    $appname + ',' + $appId | out-file c:\space\appsIds.csv -append
+    $parentFolder + ',' + $appId | out-file c:\space\appsIds.csv -append
 
 
     Dismount-DiskImage -Imagepath $vhdSrc
