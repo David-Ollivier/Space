@@ -38,7 +38,14 @@ $ctx = (Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storag
 $shareDir = Get-AZStorageFile -Context $ctx -ShareName $sharename
 
 # Waiting spaceMsix to Finish Packaging Program
-while ((Get-AZStorageFile -Context $ctx -ShareName $sharename).name -notcontains "appIds.csv")  { start-sleep 15 }
+while ((Get-AZStorageFile -Context $ctx -ShareName $sharename).name -notcontains "appIds.csv") 
+
+{ 
+
+Write-Output "Waiting for Apps"
+start-sleep 15 
+
+}
 
 ($shareDir | Where-Object { $_.name -eq 'appIds.csv' }) | Get-AzStorageFileContent
 $applist = Import-Csv "appIds.csv"
