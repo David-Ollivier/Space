@@ -108,7 +108,7 @@ foreach($msixName in $allmsix)
 # Create vhd
     set-location "c:\space\msix"
     $msixSize = ((Get-Item $msixName).length/1MB)
-    [int]$vhdSize = ([int]$msixsize * 4 * 1048576)
+    [Uint64]$vhdSize = ([Uint64]$msixsize * 4 * 1048576)
     New-VHD -SizeBytes $vhdSize -Path "c:\space\vhd\$vhdName" -Dynamic -Confirm:$false
     $vhdObject = Mount-DiskImage "c:\space\vhd\$vhdName" -Passthru
     $disk = Initialize-Disk -Passthru -Number $vhdObject.Number
