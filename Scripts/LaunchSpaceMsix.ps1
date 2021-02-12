@@ -42,8 +42,8 @@ xcopy.exe "c:\space\cert\cert.pfx" $fullazureshare
 
 # Sending MSIX Packages Informations
 $applist = @($app1,$app2,$app3,$app4,$app5,$app6,$app7,$app8) | Where-Object { $_ -ne 'none' }
-$applist | out-file c:\space\apps.csv
-
+$applist | out-file "c:\space\apps.csv"
+xcopy.exe "c:\space\apps.csv" $fullazureshare
 
 # Hyper vSpace Program
 DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V /NoRestart

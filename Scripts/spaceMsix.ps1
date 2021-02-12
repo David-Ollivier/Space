@@ -53,7 +53,7 @@ choco feature disable -n checksumFiles
         ##    /_/
         
 
-$applist = get-content -path c:\space\apps.csv
+$applist = get-content -path "c:\space\apps.csv"
 $applist 
 Set-Location -Path "c:\space\msix"
 
@@ -91,7 +91,7 @@ foreach($app in $applist)
 
 # Creating Space MSIX Containers
 $allmsix = Get-ChildItem -Path "c:\space\msix" -Filter *.msix | Select-object -ExpandProperty Name 
-'app,appId' | out-file c:\space\appsIds.csv
+'app,appId' | out-file "c:\space\appsIds.csv"
 
 
 foreach($msixName in $allmsix)
@@ -106,7 +106,7 @@ foreach($msixName in $allmsix)
     $vhdName = $parentFolder + '.vhd'
 
 # Create vhd
-    set-location c:\space\msix
+    set-location "c:\space\msix"
     $msixSize = ((Get-Item $msixName).length/1MB)
     [int]$vhdSize = ([int]$msixsize * 4 * 1048576)
     New-VHD -SizeBytes $vhdSize -Path "c:\space\vhd\$vhdName" -Dynamic -Confirm:$false
@@ -120,7 +120,7 @@ foreach($msixName in $allmsix)
     $fullvhdappfolder = $driveletter + ':\' + $parentFolder
     mkdir $fullvhdappfolder
 
-    set-location c:\space\spaceTools\msixmgr
+    set-location "c:\space\spaceTools\msixmgr"
     .\msixmgr.exe -Unpack -packagePath C:\space\msix\$msixName -destination $fullvhdappfolder -applyacls
 
 # Gettings msix's informations
