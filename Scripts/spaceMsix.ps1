@@ -125,7 +125,7 @@ foreach($msixName in $allmsix)
     $vhdSrc = "c:\space\vhd\$vhdName"
     set-location $fullvhdappfolder
     set-location (Get-ChildItem).name
-    $appId = (get-content .\$parentFolder-manifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
+    $appId = (get-content .\AppxManifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
     $parentFolder + ',' + $appId | out-file c:\space\appsIds.csv -append
 
 # Unmounting data
