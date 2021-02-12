@@ -42,7 +42,7 @@ while ((Get-AZStorageFile -Context $ctx -ShareName $sharename).name -notcontains
 
 { 
 
-Write-Output "Waiting for Apps"
+Write-Output "Waiting for Apps.."
 start-sleep 15 
 
 }
