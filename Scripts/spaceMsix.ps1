@@ -90,13 +90,14 @@ foreach($app in $applist)
 
 
 # Creating Space MSIX Containers
+$pfxFilePath = "c:\space\cert\cert.pfx"
 $allmsix = Get-ChildItem -Path "c:\space\msix" -Filter *.msix | Select-object -ExpandProperty Name 
 'app,appId' | out-file "c:\space\appsIds.csv"
 
 
 foreach($msixName in $allmsix)
 {
-    $pfxFilePath = "c:\space\cert\cert.pfx"
+    
     $msixPath = "c:\space\msix\" + $msixName
     & "c:\space\spaceTools\signtool.exe" sign /f $pfxFilePath /t "http://timestamp.digicert.com" /p space /fd SHA256 $msixPath
     start-sleep -s 5
@@ -116,23 +117,20 @@ foreach($msixName in $allmsix)
     Format-Volume -FileSystem NTFS -Confirm:$false -DriveLetter $partition.DriveLetter -Force
 
 # Transfering data
-    $driveletter = $partition.DriveLetter
-    $fullvhdappfolder = $driveletter + ':\' + $parentFolder
-    mkdir $fullvhdappfolder
-
-    set-location "c:\space\spaceTools\msixmgr"
-    .\msixmgr.exe -Unpack -packagePath C:\space\msix\$msixName -destination $fullvhdappfolder -applyacls
+    $fullvhdappfolder = $partition.DriveLetter + ':\' + $parentFolder
+    new-item -path $fullvhdappfolder -ItemType Directory
+    c:\space\spaceTools\msixmgr\msixmgr.exe -Unpack -packagePath C:\space\msix\$msixName -destination $fullvhdappfolder -applyacls
 
 # Gettings msix's informations
-    $vhdSrc="c:\space\vhd\$vhdName"
+    $vhdSrc = "c:\space\vhd\$vhdName"
     set-location $fullvhdappfolder
     set-location (Get-ChildItem).name
-    $appId = (get-content .\AppxManifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
+    $appId = (get-content .\$parentFolder-manifest.xml | Select-String -Pattern 'Application Id=').line.split("=")[1].split(' ')[0]
     $parentFolder + ',' + $appId | out-file c:\space\appsIds.csv -append
 
-
+# Unmounting data
     Dismount-DiskImage -Imagepath $vhdSrc
-    xcopy.exe C:\space\vhd\$vhdName $fullazureshare
+    xcopy.exe c:\space\vhd\$vhdName $fullazureshare
 
 }
 
