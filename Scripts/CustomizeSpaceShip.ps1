@@ -406,3 +406,7 @@ Set-MpPreference -DisableRealtimeMonitoring $false
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -AutoReboot
 cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
 Stop-Transcript
+
+
+
+# https://www.uclspacesociety.com/img/philosophy.jpg
