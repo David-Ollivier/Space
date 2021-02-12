@@ -3,15 +3,7 @@ param(
     [string] $resourceGroupName,
     [string] $hostpoolName,
     [string] $storage,
-    [string] $sharename,
-    [string] $app1,
-    [string] $app2,
-    [string] $app3,
-    [string] $app4,
-    [string] $app5,
-    [string] $app6,
-    [string] $app7,
-    [string] $app8
+    [string] $sharename
 )
 
 
@@ -39,52 +31,32 @@ New-AzWvdApplicationGroup -ResourceGroupName $resourcegroupName `
     -HostPoolArmPath "/subscriptions/$SubscriptionId/resourcegroups/$resourcegroupName/providers/Microsoft.DesktopVirtualization/hostPools/$hostpoolName" `
     -ApplicationGroupType 'RemoteApp'
 
-Write-output $app1
-Write-output $app2
-Write-output $app3
-Write-output $app4
-Write-output $app5
-Write-output $app6
-Write-output $app7
-Write-output $app8
 
-# Checking Apps
-$applist = @($app1, $app2, $app3, $app4, $app5, $app6, $app7, $app8) | Where-Object { $_ -ne 'none' } 
-Write-output $applist
-
+# Checking Apps Deployment Stat
 $storageuser = $storage.split('.')[0]
 $ctx = (Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageuser).Context
 $shareDir = Get-AZStorageFile -Context $ctx -ShareName $sharename
-$deployedapps = ($shareDir | Where-Object { $_.name -like '*vhd' }).name
-Write-Output $deployedapps
+
+# Waiting spaceMsix to Finish Packaging Program
+while ((Get-AZStorageFile -Context $ctx -ShareName $sharename).name -notcontains "appIds.csv")  { start-sleep 15 }
+
+($shareDir | Where-Object { $_.name -eq 'appIds.csv' }) | Get-AzStorageFileContent
+$applist = Import-Csv "appIds.csv"
+Write-Output $applist
 
 
 # Installing Remote MSIX Packages
 foreach ( $app in $applist ) {
-    write-output $app
-    $appname = ($app.split(" ")[2]).split(".")[0]
-    Write-Output $appname
 
-    # App Name must have at least 3 chars
-    $testlengh = $appname | Measure-Object -Character
-    
-    if ($testlengh.Characters -lt '3') {
-        $appname = $app.split($separators)[2] + $app.split($separators)[3]
-    }
-
+    $appname = $app.app
     $vhdname = $appname + '.vhd'
     write-output $vhdname
-
-    while ($deployedapps -notcontains $vhdname) { Start-sleep -s 15 } 
 
     $uncPath = '\\' + $storage + '\' + $sharename + '\' + $vhdname
     $obj = Expand-AzWvdMsixImage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -Uri $uncPath
     New-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId -PackageAlias $obj.PackageAlias -DisplayName $appname -ImagePath $uncPath -IsActive:$true
     Get-AzWvdMsixPackage -HostPoolName $hostpoolName -ResourceGroupName $resourcegroupName -SubscriptionId $SubscriptionId | Where-Object { $_.PackageFamilyName -eq $obj.PackageFamilyName }
 
-    $appsIds = $null
-    $appsIds = $shareDir | ? { $_.Name -eq 'appsIds.csv' } | Get-AzStorageFileContent
-    $appId = $appsIds | ? { $_.appname -eq $appname }
 
     New-AzWvdApplication -ResourceGroupName $resourcegroupName `
         -GroupName 'Space-Apps' `
@@ -92,14 +64,14 @@ foreach ( $app in $applist ) {
         -IconIndex 0 `
         -CommandLineSetting 'Allow' `
         -ShowInPortal:$true `
-        -MsixPackageApplicationId $appId.appId `
+        -MsixPackageApplicationId $app.appId `
         -MsixPackageFamilyName "I never fly without my $appname"
         -ApplicationType 'MSIX'
 }
 
 
 # Shutdown Space Communication
-# $VMs = (Get-AzVM -ResourceGroupName $resourcegroupName).name
+$VMs = (Get-AzVM -ResourceGroupName $resourcegroupName).name
 ForEach ( $vm in $VMs) {
 
     Stop-AzVM -ErrorAction Stop -ResourceGroupName $resourcegroupName -Name $vm -Force
