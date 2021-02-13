@@ -349,6 +349,22 @@ regedit /s c:\temp\appleKeyboard\AppleKeyboard.reg
 
 
 
+        ##    \ \_____
+      ####### [==_____> Fly Certificate Verification >
+        ##    /_/
+
+$sharename = "msix"
+$storageuser = $storage.split('.')[0]
+$storageuser = "Azure\" + $storageuser
+$fullazureshare = '\\' + $storage + '\' + $sharename
+cmd.exe /C "cmdkey /add:$storage /user:$storageuser /pass:$storagepass"
+New-PSDrive -Name Z -PSProvider FileSystem -Root $fullazureshare
+
+$certPath = $fullazureshare + "\cert.pfx"
+$pfxpass = "space" | ConvertTo-SecureString -AsPlainText -Force
+$client = New-Object System.Net.WebClient
+Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\LocalMachine\TrustedPeople -Password $pfxpass
+
 
         ##    \ \_____
       ####### [==_____> Communication Latency Optimization Program >
@@ -402,11 +418,12 @@ Set-PSRepository -InstallationPolicy Trusted -Name PSGallery
 Install-module -Name PSWindowsUpdate -Force
 Import-module -Name PSWindowsUpdate
 Set-MpPreference -DisableRealtimeMonitoring $false
-# Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
-Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -AutoReboot
-cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
+Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
+# Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -AutoReboot
+# cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
 Stop-Transcript
 
-
+Restart-Computer -Force
 
 # https://www.uclspacesociety.com/img/philosophy.jpg

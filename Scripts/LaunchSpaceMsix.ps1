@@ -15,7 +15,7 @@ Param(
 
 Start-Transcript c:\install.log
 
-# Mount Sapce Share
+# Mount Space Share
 $storageuser = $storage.split('.')[0]
 $storageuser = "Azure\" + $storageuser
 $fullazureshare = '\\' + $storage + '\' + $sharename
