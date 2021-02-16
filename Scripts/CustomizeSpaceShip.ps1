@@ -419,9 +419,10 @@ Install-module -Name PSWindowsUpdate -Force
 Import-module -Name PSWindowsUpdate
 Set-MpPreference -DisableRealtimeMonitoring $false
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
+cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
 # Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -AutoReboot
-# cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
+
 Stop-Transcript
 
 Restart-Computer -Force

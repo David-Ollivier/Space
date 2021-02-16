@@ -135,7 +135,7 @@ foreach($msixName in $allmsix)
 }
 
 # Copying Datas to Network Share
-xcopy.exe "c:\space\appsIds.csv" $fullazureshare
+# xcopy.exe "c:\space\appsIds.csv" $fullazureshare
 
 Disable-ScheduledTask -TaskName "spaceMsix"
 Stop-Transcript
