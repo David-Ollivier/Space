@@ -13,7 +13,7 @@ Start-Transcript -path c:\Reports\Retranscriptions.txt
       ####### [==_____> Bypass Security Verification Controls >
         ##    /_/
 
- 
+
 $ErrorActionPreference = 'silentlycontinue'
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force 
 Set-MpPreference -DisableRealtimeMonitoring $true
@@ -183,6 +183,11 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-s
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v "MaxXResolution" /t "REG_DWORD" /d 5120 /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" /v "MaxYResolution" /t "REG_DWORD" /d 2880 /f
 
+reg add "HKLM\Software\Policies\Microsoft\WindowsStore" /v AutoDownload /t REG_DWORD /d 0 /f
+Schtasks /Change /Tn "\Microsoft\Windows\WindowsUpdate\Automatic app update" /Disable
+Schtasks /Change /Tn "\Microsoft\Windows\WindowsUpdate\Scheduled Start" /Disable
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v PreInstalledAppsEnabled /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Debug" /v ContentDeliveryAllowedOverride /t REG_DWORD /d 0x2 /f
 
 
 
@@ -421,7 +426,8 @@ Set-MpPreference -DisableRealtimeMonitoring $false
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
 cmd /c "wmic product where caption='Microsoft Silverlight' call uninstall"
 Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -IgnoreReboot
-# Get-WUInstall -MicrosoftUpdate -AcceptAll -Install -IgnoreUserInput -AutoReboot
+
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
 Stop-Transcript
 
